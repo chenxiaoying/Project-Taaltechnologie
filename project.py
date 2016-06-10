@@ -1,10 +1,16 @@
 # Project Taaltechnologie
 
+from SPARQLWrapper import SPARQLWrapper, JSON
+from operator import itemgetter, attrgetter, methodcaller
 import sys
+import re
 import socket
-from lxml import etree
+from  lxml import etree
 
+MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
+
+
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
@@ -12,6 +18,97 @@ def analyse_question(question):
   # Geef de vraag door naar de alpino parser, verkrijg de XML
   # Zoek naar de keywords als Wie, Wanneer, Wat, etc. mbv xpath
   print(question)
+  xml = alpino_parse(question)
+  subject = xml.xpath('//node[@rel="su"]')
+  subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
+  subject = noPrepositions(subSentence)
+
+  if (subject != None): print("\tSUBJECT:\t" + subject)
+
+  (prop, uri) = findURI(subject, 10)
+  if (uri != None): print("\tFOUND:\t\t" + prop + "\n\tURI:\t\t" + uri)
+  print()
+
+
+
+# Try to find a substring that matches a URI
+def findURI(words, it=0):
+  if (words == None) or (it > MAXITERS): return (None, None)   
+
+  (prop, uri) = testForURI(words)
+  if (uri != None): return (prop,uri)
+
+  words = re.sub("[^\w]", " ",  words).split()
+
+  for i, word in enumerate(words):
+    tmpList =  words
+    altWord = getAlt(word)
+    if (altWord != None): tmpList[i] = altWord
+    else: tmpList.pop(i)
+    if (len(tmpList) > 0): (prop, uri) = findURI(' '.join(tmpList))
+    if (uri != None): return (prop,uri)
+    
+  findURI(' '.join(words[1:]))
+
+
+
+# Find a URI given a string
+def testForURI(string):
+  print("\t\t\tTESTING FOR:  " + string)
+  uri = None
+  results = []
+
+  for element in counts:
+    m = re.match(r"(^"+string+")\s"+".*", element, re.I)
+    if (m != None):
+      # print(m.group(0))
+      parts = re.split("\t", m.group(0))
+      results.append([parts[0], parts[1], parts[2]])
+
+  for (prop, uri, count) in results:
+    if uri != None:
+      return (prop,uri)
+
+  return (None, None)
+
+
+
+ 
+
+
+
+
+
+
+
+# Find a URI given a keyword
+#def findURI(word, it=0):
+#  uri = None
+#  results = []
+#
+#  for element in counts:
+#    m = re.match(r"(^"+word+")\s"+".*", element, re.I)
+#    if (m != None):
+#      # print(m.group(0))
+#      parts = re.split("\t", m.group(0))
+#      results.append([parts[0], parts[1], parts[2]])
+#
+#  for (prop, uri, count) in results:
+#    if uri != None:
+#      return (prop,uri)
+#
+#  while (uri==None)and(it<MAXITERS):
+#    newWord = getAlt(word)
+#    if (newWord != word and newWord != None):
+#      (prop, uri) = findURI(newWord, it+1)
+#      return (prop, uri)
+#
+#  words = re.sub("[^\w]", " ",  word).split()
+#
+#  if (len(words) > 1): findURI(' '.join(words[1:]), it+1)
+#
+#  return (None, None)
+  
   
 
 # Output format: ID \t Answer1 \t Answer2...
@@ -29,9 +126,40 @@ def give_output(ID, answers):
   f.write(line + '\n')
   #print(line)
 
+
+
 # Input format: ID \t Question
 def find_answer(sentence):
   print(sentence)
+
+
+
+# Get a single alternative word from similarWords
+def getAlt(word):
+  for element in similarWords:
+    m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
+    if (m != None):
+      return m.group('new')
+  return None
+
+
+
+# Get rid of prepositions
+def noPrepositions(sentence):
+    m = re.match(r"(de |het |een )?(?P<result>.+)", sentence)
+    return m.group('result')
+
+
+
+# Get a substring
+def subStr(interval, sentence):
+  words = re.sub("[^\w]", " ",  sentence).split()
+  answer = words[interval[0]]
+  for word in words[interval[0]+1:interval[1]]:
+    answer += " " + word
+  return answer
+
+
 
 # parse input sentence and return alpino output as an xml element
 def alpino_parse(sent, host='zardoz.service.rug.nl', port=42424):
@@ -49,6 +177,8 @@ def alpino_parse(sent, host='zardoz.service.rug.nl', port=42424):
 #  print(bytes_received.decode('utf-8'), file=sys.stderr)
   xml = etree.fromstring(bytes_received)
   return xml
+
+
 
 def main(argv):
   # Maak de output.txt file eerst leeg voordat de antwoorden er bij in komen
@@ -71,8 +201,22 @@ def main(argv):
     
     answers = ['Answer 1', 2, 'Answer 3']
     #TODO: stuur de vraag door voor analyse, SPARQL
+    analyse_question(question)
+ 
+
     give_output(ID, answers)
     #find_answer(sentence)
+
+
+
+
+
+
+sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
+sparql.setReturnFormat(JSON)
+pairCounts = open('pairCounts', 'r')
+counts = re.split("\n+", pairCounts.read())
+similarWords = re.split("\n+", open('similarwords', 'r').read())
     
 if __name__ == "__main__":
   main(sys.argv)
