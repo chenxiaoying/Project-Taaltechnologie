@@ -82,37 +82,55 @@ def analyse_question(question):
   # Wie/Wat is de/het X van Y
   #TODO: werkt nog niet zoals het moet
   if questionType == 'wie' or questionType == 'wat':
+    print('\tWie/Wat')
     # Als 'is' op de juiste plek staat
     if 'is' in question[4:6]:
+      print('\tWie/Wat is...')
       subject = xml.xpath('//node[@rel="su"]')
       if subject is not []:
         subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
         subject = noPrepositions(subSentence)
       
       X = subject[0:subject.index(' van ')]
+      X = X.rsplit()
       print(X)
-      Y = subject[subject.index(' van ')+5:]
-      print(Y)
-      query = """
-        SELECT STR(?naam)
-        WHERE {
-          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
-          ?onderwerp prop-nl:""" + X + ' ?' + 'naam' + """ .
-        }
-        ORDER BY DESC(?naam)
-        """
-      print(query)
-      # Geef de query door met SPARQLWrapper.
-      results = send_query(query)
-      # Print het antwoord.
-      for result in results["results"]["bindings"]:
-        for arg in result :
-          answer = result[arg]["value"]
-          # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
-          if 'http://' in answer:
-            answer = answer[31:].replace('_', ' ')
-          print(answer)
       
+      # X kijken naar similar words
+      Y = subject[subject.index(' van ')+5:]
+      Y = noPrepositions(Y)
+      print(Y)
+      
+      # Lijst waar de antwoorden in komen te staan
+      ans = []
+      # Als X uit meerdere woorden bestaat, probeer ze allemaal
+      for j in X:
+        query = """
+          SELECT STR(?naam)
+          WHERE {
+            ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
+            ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
+          }
+          ORDER BY DESC(?naam)
+          """
+        print(query)
+        # Geef de query door met SPARQLWrapper.
+        results = send_query(query)
+        
+        # Print het antwoord.
+        for result in results["results"]["bindings"]:
+          for arg in result :
+            answer = result[arg]["value"]
+            # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+            if 'http://' in answer:
+              answer = answer[31:].replace('_', ' ')
+            #print(answer)
+            ans.append(answer)
+            print(ans)
+      return ans
+      
+  
+  # Anders niks returnen
+  return None
   
   # Vind de subject
 #  subject = xml.xpath('//node[@rel="su"]')
@@ -297,8 +315,9 @@ def main(argv):
     
     #TODO: debug antwoorden weghalen
     answers = ['Answer 1', 2, 'Answer 3']
-    #TODO: stuur de vraag door voor analyse, SPARQL
-    analyse_question(question)
+    #TODO: stuur de vraag door voor analyse, SPARQL.
+    #Voorlopig zit het SPARQL query gedeelte al in analyse_question. Misschien apart maken
+    answers = analyse_question(question)
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     give_output(ID, answers)
