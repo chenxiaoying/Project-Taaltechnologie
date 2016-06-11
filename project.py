@@ -199,130 +199,130 @@ def testForURI(string):
 ## Find the object for the questions
 ## and use it as concept to search for exist URI
 def get_concept(get_question):
-	xml = alpino_parse(get_question)
-	concept = []
-	names = xml.xpath('//node[@spectype="deeleigen"]')
-	year = xml.xpath('//node[@pt="tw"]')
-	for name in names:
-		concept.append(name.attrib["word"])
-	for i in year:
-		yearnumb = i.attrib["word"]
-		if yearnumb.isdigit() == True:
-			concept.append(yearnumb)
-	conc = " ".join(concept)
-	
-	return conc
+    xml = alpino_parse(get_question)
+    concept = []
+    names = xml.xpath('//node[@spectype="deeleigen"]')
+    year = xml.xpath('//node[@pt="tw"]')
+    for name in names:
+        concept.append(name.attrib["word"])
+    for i in year:
+        yearnumb = i.attrib["word"]
+        if yearnumb.isdigit() == True:
+            concept.append(yearnumb)
+    conc = " ".join(concept)
+    
+    return conc
     
 
 
 # Find the exist URI from the file pairCounts
 def gener_concept(conc):
-	cont_list = []
-	concept = ''
-	pairCounts_file = open('pairCounts','r')
-	for line in pairCounts_file:
-		line = line.rstrip()
-		
-		# change the wordgroup "Olympische Spelen" to Olympische Zomerspelen
-		## if Olympische Zomerspelen for that year doesn't exist, 
-		##change to Olympische Winterspelen
-		if "Olympische Spelen" in conc:
-			conc = conc.replace("Olympische Spelen","Olympische Zomerspelen")
-		if re.search(conc, line):
-			context = line.split('	')
-			cont_list.append(context)
-			if conc == context[0]:
-				concept = context[0]
-			else:
-				if "Olympische Spelen" in conc:
-					conc = conc.replace("Olympische Spelen","Olympische Winterspelen")
-					if re.search(conc, line):
-						context = line.split('	')
-						cont_list.append(context)
-						if conc == context[0]:
-							concept = context[0]
-	return concept
+    cont_list = []
+    concept = ''
+    pairCounts_file = open('pairCounts','r')
+    for line in pairCounts_file:
+        line = line.rstrip()
+        
+        # change the wordgroup "Olympische Spelen" to Olympische Zomerspelen
+        ## if Olympische Zomerspelen for that year doesn't exist, 
+        ##change to Olympische Winterspelen
+        if "Olympische Spelen" in conc:
+            conc = conc.replace("Olympische Spelen","Olympische Zomerspelen")
+        if re.search(conc, line):
+            context = line.split('  ')
+            cont_list.append(context)
+            if conc == context[0]:
+                concept = context[0]
+            else:
+                if "Olympische Spelen" in conc:
+                    conc = conc.replace("Olympische Spelen","Olympische Winterspelen")
+                    if re.search(conc, line):
+                        context = line.split('  ')
+                        cont_list.append(context)
+                        if conc == context[0]:
+                            concept = context[0]
+    return concept
     
     
 ## Vind subject van de vraag
 ## gebruik het als property
 def get_prop(get_question):
-	
-	xml = alpino_parse(get_question)
-	uri_prop = []
-	
-	## soms is het subject een zelfstandig naamwoord
-	names = xml.xpath('//node[@ntype]')
-	for name in names:
-		uri_prop.append(name.attrib["word"])
-		
-	## als een bijvoegelijk naamwoord voorkomt
-	bijvnw = xml.xpath('//node[@pt="adj"]')
-	for word in bijvnw:
-		uri_prop.append(word.attrib['word'])
-	
-	## vind het werkwoord en vraagtype(wie/waar/wanneer)		
-	verb = xml.xpath('//node[@pt="ww"]')
-	q_type = xml.xpath('//node[@vwtype]')
+    
+    xml = alpino_parse(get_question)
+    uri_prop = []
+    
+    ## soms is het subject een zelfstandig naamwoord
+    names = xml.xpath('//node[@ntype]')
+    for name in names:
+        uri_prop.append(name.attrib["word"])
+        
+    ## als een bijvoegelijk naamwoord voorkomt
+    bijvnw = xml.xpath('//node[@pt="adj"]')
+    for word in bijvnw:
+        uri_prop.append(word.attrib['word'])
+    
+    ## vind het werkwoord en vraagtype(wie/waar/wanneer)        
+    verb = xml.xpath('//node[@pt="ww"]')
+    q_type = xml.xpath('//node[@vwtype]')
 
-	for pp in q_type:
-		if 'word' in pp.attrib:
-			question_type = pp.attrib["word"]
-			for v in verb:
-				if question_type == "Waar" and v.attrib["word"] == "geboren":
-					uri_prop.append("geboorteplaats")
-				elif question_type == "Wanneer" and v.attrib["word"] == "geboren":
-					uri_prop.append("geboortedatum")
-				elif question_type == "Waar":
-					uri_prop.append("plaats")
-				else:
-					uri_prop.append(v.attrib["root"])
-			for i in verb:
-				werkw = i.attrib["root"]
-				
-				#als vraagt naar een persoon(begin met wie)
-				##verander werkwoord naar zelfstandig nw (bij +er)
-				#voorbeeld open wordt opener
-				if question_type == "Wie" or question_type == "wie":
-					persoon = werkw + "er"
-					uri_prop.append(persoon)
-					persoon = werkw + "or"
-					uri_prop.append(persoon)
-					
-	noun = xml.xpath('//node[@lcat="np" and @rel="hd"]')
-	for n in noun:
-		if 'word' in n.attrib:
-			uri_prop.append(n.attrib["root"])			
+    for pp in q_type:
+        if 'word' in pp.attrib:
+            question_type = pp.attrib["word"]
+            for v in verb:
+                if question_type == "Waar" and v.attrib["word"] == "geboren":
+                    uri_prop.append("geboorteplaats")
+                elif question_type == "Wanneer" and v.attrib["word"] == "geboren":
+                    uri_prop.append("geboortedatum")
+                elif question_type == "Waar":
+                    uri_prop.append("plaats")
+                else:
+                    uri_prop.append(v.attrib["root"])
+            for i in verb:
+                werkw = i.attrib["root"]
+                
+                #als vraagt naar een persoon(begin met wie)
+                ##verander werkwoord naar zelfstandig nw (bij +er)
+                #voorbeeld open wordt opener
+                if question_type == "Wie" or question_type == "wie":
+                    persoon = werkw + "er"
+                    uri_prop.append(persoon)
+                    persoon = werkw + "or"
+                    uri_prop.append(persoon)
+                    
+    noun = xml.xpath('//node[@lcat="np" and @rel="hd"]')
+    for n in noun:
+        if 'word' in n.attrib:
+            uri_prop.append(n.attrib["root"])           
 
-	return uri_prop
+    return uri_prop
 
 ## als gevraagt naar medailles
 def get_medailles(property_uri,conc):
-	
-	wn = 0
-	
-	##als gouden,goude enzovoort voorkomt in de vraag
-	##property wordt brons,goud,zilver
-	for word in property_uri:
-		if 'bron' in word:
-			property_uri[wn] = 'brons' 
-		elif 'goud' in word:
-			property_uri[wn] = 'goud'
-		elif 'zilver' in word:
-			property_uri[wn] = 'zilver'
-		wn = wn + 1
-	
-	## als medailles gevraag van een land, zoek naar de juste URI
-	## dbpedia page: land_op_de_hoeveelste spelen
-	## voorbeeld: Nederland_op_de_Olympische_Zomerspelen_2012
-	for word in property_uri:
-		if "medaille" in word:
-			for i in property_uri:
-				if i[0].isupper() == True:
-					conc = i + ' op ' + 'de ' + conc
-		break
-					
-	create_queries(property_uri,conc)
+    
+    wn = 0
+    
+    ##als gouden,goude enzovoort voorkomt in de vraag
+    ##property wordt brons,goud,zilver
+    for word in property_uri:
+        if 'bron' in word:
+            property_uri[wn] = 'brons' 
+        elif 'goud' in word:
+            property_uri[wn] = 'goud'
+        elif 'zilver' in word:
+            property_uri[wn] = 'zilver'
+        wn = wn + 1
+    
+    ## als medailles gevraag van een land, zoek naar de juste URI
+    ## dbpedia page: land_op_de_hoeveelste spelen
+    ## voorbeeld: Nederland_op_de_Olympische_Zomerspelen_2012
+    for word in property_uri:
+        if "medaille" in word:
+            for i in property_uri:
+                if i[0].isupper() == True:
+                    conc = i + ' op ' + 'de ' + conc
+        break
+                    
+    create_queries(property_uri,conc)
 
    
 ## Create queries using the generated properties and URI        
@@ -337,13 +337,18 @@ def create_queries(property_uri,concept):
     querie_second = '"^^xsd:string. ?concept prop-nl:'
     querie_last = ' ?answer .}'
     
-    #property_uri = similar_words(property_uri)
+    #kijken naar similar woord nog niet gelukt
+    for word in property_uri:
+        if getAlt(word) != None:
+            property_uri.append(getAlt(word))
+            break
+    #print(property_uri)
     
     for word in property_uri:
         try:
             for i, j in {'*':'_','&':'_','$':'_','@':'_','/':'_','(':'', ')':''}.items():
                 word = word.replace(i, j)
-            print(word)
+            #print(word)
             if 'concept' in locals():
                 querie_whole = querie_first + concept + querie_second + word + querie_last
                 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
@@ -356,9 +361,7 @@ def create_queries(property_uri,concept):
                             erase_url = result[arg]["value"].rsplit('/')
                             answer = arg + " : " + erase_url[-1]
                             answer_list.append(answer)
-                            print(answer_list[0],'\n\n')
-                            return answer_list[0]
-                    break
+                            print(answer_list,'\n\n')
         except Exception as e:
             sys.stderr.write(e)
             pass        
@@ -367,24 +370,25 @@ def create_queries(property_uri,concept):
     return answer_list
 
 
+
 ## haal alle properties uit relevante dbpedia pagina die hoort bij categorie sporten, personen en olympics
 def prop_list():
-	word_list = ["Sport","Person","Olympics"]
-	answer_list = []
-	for word in word_list:
-		query = """select distinct ?property where {
-		?instance a <http://dbpedia.org/ontology/"""+ word + """> . 
-		?instance ?property ?obj . }"""
-		results = send_query(query)
-		if results["results"]["bindings"] != []:
-			for result in results["results"]["bindings"]:
-				for arg in result:
-					erase_url = result[arg]["value"].rsplit('/')
-					answer_list.append(erase_url[-1])
-					#print(answer_list,'\n\n')
-	
-	return answer_list
-        	
+    word_list = ["Sport","Person","Olympics"]
+    answer_list = []
+    for word in word_list:
+        query = """select distinct ?property where {
+        ?instance a <http://dbpedia.org/ontology/"""+ word + """> . 
+        ?instance ?property ?obj . }"""
+        results = send_query(query)
+        if results["results"]["bindings"] != []:
+            for result in results["results"]["bindings"]:
+                for arg in result:
+                    erase_url = result[arg]["value"].rsplit('/')
+                    answer_list.append(erase_url[-1])
+                    #print(answer_list,'\n\n')
+    
+    return answer_list
+            
 
 
 
@@ -424,7 +428,7 @@ def prop_list():
 def give_output(ID, answers):
   f = open(OUTPUT_FILE, 'a')
   # Als answers leeg is, geef aan dat er geen antwoord is gevonden
-  if answers == []:
+  if answers == [] or answers is None:
     line = 'Geen antwoord gevonden'
   else:
     # Er zijn 1 of meer antwoorden: maak van de lijst een string gescheiden door tabs
@@ -448,7 +452,8 @@ def getAlt(word):
   for element in similarWords:
     m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
     if (m != None):
-      return m.group('new')
+        #print(m.group('new'))
+        return m.group('new')
   return None
 
 
@@ -504,7 +509,7 @@ def main(argv):
     if '\t' in sentence:
       ID = sentence[0:sentence.index('\t')]
       question = sentence[sentence.index('\t')+1:]
-      print(question)
+
     # Geen ID voor de vraag: sentence is de gehele vraag, geef het een ID
     else:
       ID = ID + 1
@@ -531,8 +536,8 @@ def main(argv):
 
 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
-pairCounts = open('pairCounts', 'r', encoding='utf-8')
-counts = re.split("\n+", pairCounts.read())
+#pairCounts = open('pairCounts', 'r', encoding='utf-8')
+#counts = re.split("\n+", pairCounts.read())
 similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
     
 if __name__ == "__main__":
