@@ -367,6 +367,24 @@ def create_queries(property_uri,concept):
     return answer_list
 
 
+## haal alle properties uit relevante dbpedia pagina die hoort bij categorie sporten, personen en olympics
+def prop_list():
+	word_list = ["Sport","Person","Olympics"]
+	answer_list = []
+	for word in word_list:
+		query = """select distinct ?property where {
+		?instance a <http://dbpedia.org/ontology/"""+ word + """> . 
+		?instance ?property ?obj . }"""
+		results = send_query(query)
+		if results["results"]["bindings"] != []:
+			for result in results["results"]["bindings"]:
+				for arg in result:
+					erase_url = result[arg]["value"].rsplit('/')
+					answer_list.append(erase_url[-1])
+					#print(answer_list,'\n\n')
+	
+	return answer_list
+        	
 
 
 
@@ -479,6 +497,7 @@ def main(argv):
   #TODO: tijdelijk gewoon meteen de vragen txt meegeven voor het gemak
   sys.stdin = open('olympics_questions.txt', 'r', encoding='utf-8')
   
+  prop_list()
   for sentence in sys.stdin:
     sentence = sentence.rstrip()
     # Haal het ID en de vraag uit de zin
@@ -495,14 +514,13 @@ def main(argv):
     answers = ['Answer 1', 2, 'Answer 3']
     #TODO: stuur de vraag door voor analyse, SPARQL.
     #Voorlopig zit het SPARQL query gedeelte al in analyse_question. Misschien apart maken
-    #answers = analyse_question(question)
+    answers = analyse_question(question)
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     uri = get_concept(question)
     new_uri = gener_concept(uri)
     property_q = get_prop(question)
     get_medailles(property_q,new_uri)
-
 
     give_output(ID, answers)
 
