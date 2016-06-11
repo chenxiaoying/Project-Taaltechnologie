@@ -10,7 +10,27 @@ from  lxml import etree
 MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
 
+# Zit x in y?
+def isIn(x, y):
+  # Haal hoofdletters er uit voor elk element
+  if x.lower() in y.lower():
+    return True
+  else:
+    return False
+	#for item in y:
+    # Haal hoofdletters weg en check of x in item zit
+	#	if x.lower().startswith(item.lower()):
+	#		return True
+	#return False
 
+# tree_yield: gegeven bij assignment 4
+# The function tree_yield appends the value of the word-attribute for all nodes that are dominated by the node 'xml' that is the argument of the function, and returns this a single string....
+def tree_yield(xml):
+  leaves = xml.xpath('descendant-or-self::node[@word]')
+  words = []
+  for l in leaves :
+      words.append(l.attrib["word"])
+  return " ".join(words)
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
@@ -19,6 +39,17 @@ def analyse_question(question):
   # Zoek naar de keywords als Wie, Wanneer, Wat, etc. mbv xpath
   print(question)
   xml = alpino_parse(question)
+  
+  # Vind de whd (wat, wie, hoeveel --, wanneer, hoe --, etc)
+  #TODO: misschien checken of deze leeg is voordat hij verder gaat.
+  whd = xml.xpath('//node[@rel="whd"]')
+  whd = tree_yield(whd[0])
+  print('\tWHD:\t' + whd)
+  #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
+  wat = isIn('wat', whd)
+  print(wat)
+  
+  # Vind de subject
   subject = xml.xpath('//node[@rel="su"]')
   subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
   subject = noPrepositions(subSentence)
@@ -214,9 +245,9 @@ def main(argv):
 
 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
-pairCounts = open('pairCounts', 'r')
+pairCounts = open('pairCounts', 'r', encoding='utf-8')
 counts = re.split("\n+", pairCounts.read())
-similarWords = re.split("\n+", open('similarwords', 'r').read())
+similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
     
 if __name__ == "__main__":
   main(sys.argv)
