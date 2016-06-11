@@ -1,4 +1,6 @@
 # Project Taaltechnologie
+# Group 13: Roald Baas, Xiaoying Chen, Anne Wanningen
+# We nemen aan dat de bestanden pairCounts en similarwords aanwezig zijn in dezelfde directory als dit bestand
 
 from SPARQLWrapper import SPARQLWrapper, JSON
 from operator import itemgetter, attrgetter, methodcaller
@@ -17,11 +19,6 @@ def isIn(x, y):
     return True
   else:
     return False
-	#for item in y:
-    # Haal hoofdletters weg en check of x in item zit
-	#	if x.lower().startswith(item.lower()):
-	#		return True
-	#return False
 
 # tree_yield: gegeven bij assignment 4
 # The function tree_yield appends the value of the word-attribute for all nodes that are dominated by the node 'xml' that is the argument of the function, and returns this a single string....
@@ -230,13 +227,13 @@ def main(argv):
       ID = ID + 1
       question = sentence
     
+    #TODO: debug antwoorden weghalen
     answers = ['Answer 1', 2, 'Answer 3']
     #TODO: stuur de vraag door voor analyse, SPARQL
     analyse_question(question)
- 
+    #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     give_output(ID, answers)
-    #find_answer(sentence)
 
 
 
