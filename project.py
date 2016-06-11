@@ -13,6 +13,13 @@ MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
 QUESTIONTYPES = ['wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'] #TODO: questiontypes uitbreiden. 'hoe' moet helemaal aan het eind (zodat 'hoeveel' eerst komt). Dan kunnen we verder zoeken: hoe lang, hoe vaak, etc.
 
+# Stuur de SPARQL query naar dbpedia
+def send_query(query):
+  sparql.setQuery(query)
+  sparql.setReturnFormat(JSON)
+  results = sparql.query().convert()
+  return results
+
 # Bepaal het vraagtype van een lijst woorden aan de hand van QUESTIONTYPES
 def getQuestionType(words):
   for type in QUESTIONTYPES:
@@ -46,32 +53,77 @@ def analyse_question(question):
   # Zoek naar de keywords als Wie, Wanneer, Wat, etc. mbv xpath
   print(question)
   xml = alpino_parse(question)
+  questionType = None
   
   # Vind de whd (wat, wie, hoeveel --, wanneer, hoe --, etc)
   #TODO: misschien checken of deze leeg is voordat hij verder gaat.
   whd = xml.xpath('//node[@rel="whd"]')
-  whd = tree_yield(whd[0])
-  print('\tWHD:\t' + whd)
-  #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
-  questionType = getQuestionType(whd)
-  # Nu weten we het vraagtype:
+  # Als whd leeg is, is het vraagtype niet goed te bepalen
+  if whd == []:
+    print('\tWHD IS LEEG!!!')
+  # De whd is niet leeg, we kunnen een vraagtype bepalen
+  else:
+    whd = tree_yield(whd[0])
+    print('\tWHD:\t' + whd)
+    #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
+    questionType = getQuestionType(whd)
+    # Nu weten we het vraagtype:
+    
   if questionType is not None:
     print('\tQUESTION TYPE:\t' + questionType)
   else:
     # Als q type None is even extra aandacht aan schenken.
     print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
-  
+    
+  # Als whd 'hoeveel' is weten we direct waar het om gaat: de woorden die erna komen.
+  if questionType == 'hoeveel':
+    print(whd[8:])
+    
+  # Wie/Wat is de/het X van Y
+  #TODO: werkt nog niet zoals het moet
+  if questionType == 'wie' or questionType == 'wat':
+    # Als 'is' op de juiste plek staat
+    if 'is' in question[4:6]:
+      subject = xml.xpath('//node[@rel="su"]')
+      if subject is not []:
+        subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
+        subject = noPrepositions(subSentence)
+      
+      X = subject[0:subject.index(' van ')]
+      print(X)
+      Y = subject[subject.index(' van ')+5:]
+      print(Y)
+      query = """
+        SELECT STR(?naam)
+        WHERE {
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
+          ?onderwerp prop-nl:""" + X + ' ?' + 'naam' + """ .
+        }
+        ORDER BY DESC(?naam)
+        """
+      print(query)
+      # Geef de query door met SPARQLWrapper.
+      results = send_query(query)
+      # Print het antwoord.
+      for result in results["results"]["bindings"]:
+        for arg in result :
+          answer = result[arg]["value"]
+          # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+          if 'http://' in answer:
+            answer = answer[31:].replace('_', ' ')
+          print(answer)
+      
   
   # Vind de subject
-  subject = xml.xpath('//node[@rel="su"]')
-  subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
-  subject = noPrepositions(subSentence)
+#  subject = xml.xpath('//node[@rel="su"]')
+#  subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
+#  subject = noPrepositions(subSentence)
 
-  if (subject != None): print("\tSUBJECT:\t" + subject)
+#  if (subject != None): print("\tSUBJECT:\t" + subject)
 
-  (prop, uri) = findURI(subject, 10)
-  if (uri != None): print("\tFOUND:\t\t" + prop + "\n\tURI:\t\t" + uri)
-  print()
+#  (prop, uri) = findURI(subject, 10)
+#  if (uri != None): print("\tFOUND:\t\t" + prop + "\n\tURI:\t\t" + uri)
+#  print()
 
 
 
