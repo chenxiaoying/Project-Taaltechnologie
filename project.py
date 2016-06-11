@@ -13,12 +13,16 @@ MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
 QUESTIONTYPES = ['wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'] #TODO: questiontypes uitbreiden. 'hoe' moet helemaal aan het eind (zodat 'hoeveel' eerst komt). Dan kunnen we verder zoeken: hoe lang, hoe vaak, etc.
 
+
+
 # Stuur de SPARQL query naar dbpedia
 def send_query(query):
   sparql.setQuery(query)
   sparql.setReturnFormat(JSON)
   results = sparql.query().convert()
   return results
+
+
 
 # Bepaal het vraagtype van een lijst woorden aan de hand van QUESTIONTYPES
 def getQuestionType(words):
@@ -29,6 +33,8 @@ def getQuestionType(words):
   # Als er niets is gevonden is het type None
   return None
 
+
+
 # Zit x in y?
 def isIn(x, y):
   # Haal hoofdletters er uit voor elk element
@@ -36,6 +42,8 @@ def isIn(x, y):
     return True
   else:
     return False
+
+
 
 # tree_yield: gegeven bij assignment 4
 # The function tree_yield appends the value of the word-attribute for all nodes that are dominated by the node 'xml' that is the argument of the function, and returns this a single string....
@@ -45,6 +53,8 @@ def tree_yield(xml):
   for l in leaves :
       words.append(l.attrib["word"])
   return " ".join(words)
+
+
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
@@ -127,7 +137,6 @@ def analyse_question(question):
             ans.append(answer)
             print(ans)
       return ans
-      
   
   # Anders niks returnen
   return None
@@ -204,6 +213,8 @@ def get_concept(get_question):
 	
 	return conc
     
+
+
 # Find the exist URI from the file pairCounts
 def gener_concept(conc):
 	cont_list = []
@@ -329,24 +340,30 @@ def create_queries(property_uri,concept):
     #property_uri = similar_words(property_uri)
     
     for word in property_uri:
-        if 'concept' in locals():
-            querie_whole = querie_first + concept + querie_second + word + querie_last
-            sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
-            sparql.setQuery(querie_whole)
-            sparql.setReturnFormat(JSON)
-            results = sparql.query().convert()
-            if results["results"]["bindings"] != []:
-                for result in results["results"]["bindings"]:
-                    for arg in result:
-                        erase_url = result[arg]["value"].rsplit('/')
-                        answer = arg + " : " + erase_url[-1]
-                        answer_list.append(answer)
-                        print(answer_list[0],'\n\n')
-                        return answer_list[0]
-                break
-                
+        try:
+            for i, j in {'*':'_','&':'_','$':'_','@':'_','/':'_','(':'', ')':''}.items():
+                word = word.replace(i, j)
+            print(word)
+            if 'concept' in locals():
+                querie_whole = querie_first + concept + querie_second + word + querie_last
+                sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
+                sparql.setQuery(querie_whole)
+                sparql.setReturnFormat(JSON)
+                results = sparql.query().convert()
+                if results["results"]["bindings"] != []:
+                    for result in results["results"]["bindings"]:
+                        for arg in result:
+                            erase_url = result[arg]["value"].rsplit('/')
+                            answer = arg + " : " + erase_url[-1]
+                            answer_list.append(answer)
+                            print(answer_list[0],'\n\n')
+                            return answer_list[0]
+                    break
+        except Exception as e:
+            sys.stderr.write(e)
+            pass        
     if answer_list == []:
-        print("Geen antwoord gevonden")
+        print("Geen antwoord gevonden\n")
     return answer_list
 
 
