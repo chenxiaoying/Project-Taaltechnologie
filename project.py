@@ -11,6 +11,16 @@ from  lxml import etree
 
 MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
+QUESTIONTYPES = ['wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'] #TODO: questiontypes uitbreiden. 'hoe' moet helemaal aan het eind (zodat 'hoeveel' eerst komt). Dan kunnen we verder zoeken: hoe lang, hoe vaak, etc.
+
+# Bepaal het vraagtype van een lijst woorden aan de hand van QUESTIONTYPES
+def getQuestionType(words):
+  for type in QUESTIONTYPES:
+    # Als een bepaald type (uit QUESTIONTYPES) in de gegeven woorden aanwezig is gaat het om dit type
+    if isIn(type, words):
+      return type
+  # Als er niets is gevonden is het type None
+  return None
 
 # Zit x in y?
 def isIn(x, y):
@@ -43,8 +53,14 @@ def analyse_question(question):
   whd = tree_yield(whd[0])
   print('\tWHD:\t' + whd)
   #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
-  wat = isIn('wat', whd)
-  print(wat)
+  questionType = getQuestionType(whd)
+  # Nu weten we het vraagtype:
+  if questionType is not None:
+    print('\tQUESTION TYPE:\t' + questionType)
+  else:
+    # Als q type None is even extra aandacht aan schenken.
+    print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
+  
   
   # Vind de subject
   subject = xml.xpath('//node[@rel="su"]')
