@@ -54,7 +54,63 @@ def tree_yield(xml):
       words.append(l.attrib["word"])
   return " ".join(words)
 
-
+# Parse een 'Wie/Wat is de/het X van Y?' vraag
+def parseXofYQuestion(xml, question):
+  # Lijst waar de antwoorden in komen te staan
+  ans = []
+  # Vind de subject
+  subject = xml.xpath('//node[@rel="su"]')
+  #directObject = xml.xpath('//node[@cat="np" and @rel="obj1"]')
+  #if directObject is not []:
+  #  for word in directObject:
+  #    ding = tree_yield(word)
+  #    print(ding)
+  if subject is not []:
+    subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
+    subject = noPrepositions(subSentence)
+  
+  print('\tSUBJECT:\t' + subject)
+  
+  if ' van ' in subject:
+    X = subject[0:subject.index(' van ')]
+    X = X.rsplit()
+    print(X)
+    
+    #X kijken naar similar words
+    Y = subject[subject.index(' van ')+5:]
+    Y = noPrepositions(Y)
+    print(Y)
+  else:
+    # Hij heeft het niet goed herkend
+    #TODO: andere oplossing bedenken.
+    return None
+  
+  # Als X uit meerdere woorden bestaat, probeer ze allemaal
+  for j in X:
+    query = """
+      SELECT STR(?naam)
+      WHERE {
+        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
+        ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
+      }
+      ORDER BY DESC(?naam)
+      """
+    print(query)
+    # Geef de query door met SPARQLWrapper.
+    results = send_query(query)
+    
+    # Print het antwoord.
+    for result in results["results"]["bindings"]:
+      for arg in result :
+        answer = result[arg]["value"]
+        # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+        if 'http://' in answer:
+          answer = answer[31:].replace('_', ' ')
+        #print(answer)
+        ans.append(answer)
+        print(ans)
+  
+  return answer
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
@@ -92,50 +148,11 @@ def analyse_question(question):
   # Wie/Wat is de/het X van Y
   #TODO: werkt nog niet zoals het moet
   if questionType == 'wie' or questionType == 'wat':
-    print('\tWie/Wat')
-    # Als 'is' op de juiste plek staat
-    if 'is' in question[4:6]:
+    #print('\tWie/Wat')
+    # Check of het om een wie/wat is vraag gaat
+    if xml.xpath('//node[@stype="whquestion" and @root="ben"]'):
       print('\tWie/Wat is...')
-      subject = xml.xpath('//node[@rel="su"]')
-      if subject is not []:
-        subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
-        subject = noPrepositions(subSentence)
-      
-      X = subject[0:subject.index(' van ')]
-      X = X.rsplit()
-      print(X)
-      
-      # X kijken naar similar words
-      Y = subject[subject.index(' van ')+5:]
-      Y = noPrepositions(Y)
-      print(Y)
-      
-      # Lijst waar de antwoorden in komen te staan
-      ans = []
-      # Als X uit meerdere woorden bestaat, probeer ze allemaal
-      for j in X:
-        query = """
-          SELECT STR(?naam)
-          WHERE {
-            ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
-            ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
-          }
-          ORDER BY DESC(?naam)
-          """
-        print(query)
-        # Geef de query door met SPARQLWrapper.
-        results = send_query(query)
-        
-        # Print het antwoord.
-        for result in results["results"]["bindings"]:
-          for arg in result :
-            answer = result[arg]["value"]
-            # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
-            if 'http://' in answer:
-              answer = answer[31:].replace('_', ' ')
-            #print(answer)
-            ans.append(answer)
-            print(ans)
+      ans = parseXofYQuestion(xml, question)
       return ans
   
   # Anders niks returnen
