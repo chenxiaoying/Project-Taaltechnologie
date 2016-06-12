@@ -306,22 +306,27 @@ def get_concept(get_question):
 def gener_concept(conc):
     cont_list = []
     concept = ''
-    #pairCounts_file = open('pairCounts','r')
-    for line in pairCounts:
+    
+    ## ik weet niet waarom als dit niet hier staat, kan hij geen URI vinden behalve Olympische Spelen
+    pairCounts_file = open('pairCounts','r')
+
+    for line in pairCounts_file:
         line = line.rstrip()
+        context = line.split('\t')
         
-        # change the wordgroup "Olympische Spelen" to Olympische Zomerspelen
-        #TODO: hier gaat hij meteen de fout in bij de eerste vraag; hij zou Olympische Spelen moeten pakken als URI, niet Olympische Zomerspelen
-        ## if Olympische Zomerspelen for that year doesn't exist, 
-        ##change to Olympische Winterspelen
-        if re.search(conc, line):
-            context = line.split('\t')
-            cont_list.append(context)
+        ## verbetert naar als achter de Olympische Spelen een number(meestal is het een jaargetal) volgt, zoekt naar juste olympisch winter/zomer spelen
+        ## als geen jaar achter volgt, pakt URI van olympische spelen
+        if "Olympische Spelen" in conc and re.search('\d',conc) != None:
+            conc = conc.replace("Olympische Spelen","Olympische Zomerspelen")
             if conc == context[0]:
                 concept = context[0]
-                return concept
+            else:
+                conc = conc.replace("Olympische Spelen","Olympische Winterspelen")
+                if conc == context[0]:
+                    concept = context[0]
+        if conc == context[0]:
+            concept = context[0]
 
-    print(concept)
     return concept
     
     
@@ -401,6 +406,7 @@ def get_medailles(property_uri,conc):
         if "medaille" in word:
             for i in property_uri:
                 if i[0].isupper() == True:
+                    print(conc)
                     conc = i + ' op ' + 'de ' + conc
                     print(conc)
         break
@@ -620,7 +626,7 @@ def main(argv):
 
 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
-pairCounts = open('pairCounts', 'r', encoding='utf-8')
+pairCounts = open('pairCounts', 'r',encoding='utf-8')
 #counts = re.split("\n+", pairCounts.read())
 similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
     
