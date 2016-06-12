@@ -62,6 +62,7 @@ def parseXofYQuestion(xml, question):
   subject = xml.xpath('//node[@rel="su"]')
   # Krijg de uri
   uri = get_concept(question)
+  uri = gener_concept(uri)
   
   #directObject = xml.xpath('//node[@cat="np" and @rel="obj1"]')
   #if directObject is not []:
@@ -85,22 +86,6 @@ def parseXofYQuestion(xml, question):
   print('----URI---')
   print(Y)
   print('----------')
-  
-  # Oud en minder goed
-  #if ' van ' in subject:
-    #TODO: X op een betere manier bepalen
-    #X = subject[0:subject.index(' van ')]
-    #X = X.rsplit()
-    #print(X)
-    #Y = uri
-    
-    #print(Y)
-  #else:
-    # Hij heeft het niet goed herkend
-    #TODO: andere oplossing bedenken.
-    #return None
-  
-  
   
   
   
@@ -174,9 +159,27 @@ def analyse_question(question):
       ans = parseXofYQuestion(xml, question)
       return ans
   
+  # Waar-vraag
+  # Deze wordt beantwoord door de default-case onderaan de functie
+  
+  # Hoeveel-vraag
+  if questionType == 'hoeveel':
+    #TODO: als iets van '...Zomerspelen van 2008' er in voor komt is uri mogelijk '2008'
+    uri = get_concept(question)
+    uri = gener_concept(uri)
+    print('uri---------------')
+    print(uri)
+    print('---------------')
+    X = get_prop(question)
+    print('prop---------------')
+    print(X)
+    print('---------------')
+    # In principe wordt deze opgepakt door de default-case (zie onderaan deze functie)
+  
   # Hoe -- vraag
   if questionType == 'hoe':
     uri = get_concept(question)
+    uri = gener_concept(uri)
     print(uri)
     X = get_prop(question)
     print(X)
@@ -215,6 +218,7 @@ def analyse_question(question):
   # Wanneer-vraag
   if questionType == 'wanneer':
     uri = get_concept(question)
+    uri = gener_concept(uri)
     #TODO: Y gebruiken om URI te vinden
     print(uri)
     # Vind de werkwoorden, en gebruik dit om de property te vinden
@@ -257,7 +261,40 @@ def analyse_question(question):
     print(ans)
     print('---------------')
     return ans
+  
+  # Default: geen vraagtype gevonden, probeer een antwoord te vinden aan de hand van de property en uri
+  uri = get_concept(question)
+  uri = gener_concept(uri)
+  print(uri)
+  X = get_prop(question)
+  print(X)
+  ans = []
+  for j in X:
+    query = """
+      SELECT STR(?naam)
+      WHERE {
+        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_') + """ .
+        ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
+      }
+      ORDER BY DESC(?naam)
+      """
+    print(query)
+    # Geef de query door met SPARQLWrapper.
+    results = send_query(query)
     
+    # Print het antwoord.
+    for result in results["results"]["bindings"]:
+      for arg in result :
+        answer = result[arg]["value"]
+        # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+        if 'http://' in answer:
+          answer = answer[31:].replace('_', ' ')
+        #print(answer)
+        ans.append(answer)
+  print('---------------')
+  print(ans)
+  print('---------------')
+  return ans
   
   # Anders niks returnen
   return None
@@ -342,7 +379,7 @@ def gener_concept(conc):
     concept = ''
     
     ## ik weet niet waarom als dit niet hier staat, kan hij geen URI vinden behalve Olympische Spelen
-    pairCounts_file = open('pairCounts','r')
+    pairCounts_file = open('pairCounts','r',encoding='utf-8')
 
     for line in pairCounts_file:
         line = line.rstrip()
@@ -379,7 +416,6 @@ def get_prop(get_question):
     ## als een bijvoegelijk naamwoord voorkomt
     bijvnw = xml.xpath('//node[@pt="adj"]')
     for word in bijvnw:
-        uri_prop.append(word.attrib['root'])
         uri_prop.append(word.attrib['word'])
     
     ## vind het werkwoord en vraagtype(wie/waar/wanneer)        
@@ -415,6 +451,8 @@ def get_prop(get_question):
         if 'word' in n.attrib:
             uri_prop.append(n.attrib["root"])           
 
+    # Haal dubbele items uit de lijst
+    uri_prop = list(set(uri_prop))
     return uri_prop
 
 ## als gevraagt naar medailles
@@ -460,6 +498,13 @@ def create_queries(property_uri,concept):
     querie_second = '"^^xsd:string. ?concept prop-nl:'
     querie_last = ' ?answer .}'
     
+    #kijken naar similar woord nog niet gelukt
+    for word in property_uri:
+        if getAlt(word) != None:
+            property_uri.append(getAlt(word))
+            break
+    #print(property_uri)
+    
     for word in property_uri:
         try:
             for i, j in {'*':'_','&':'_','$':'_','@':'_','/':'_','(':'', ')':''}.items():
@@ -485,16 +530,7 @@ def create_queries(property_uri,concept):
         print("Geen antwoord gevonden\n")
     return answer_list
 
-## als geen antwoord direct vindt, probeer dan met similar woorden of property
-def second_try(property_uri,conc):
-    simi_list = []
-    for word in property_uri:
-        for words in getAlt(word):
-            simi_list.append(words)
-    if simi_list is not None:
-        simi_list = list(set(simi_list))
-    create_queries(simi_list,conc)
-        
+
 
 ## haal alle properties uit relevante dbpedia pagina die hoort bij categorie sporten, personen en olympics
 def prop_list():
@@ -572,24 +608,14 @@ def find_answer(sentence):
 
 
 
-# Get alternative words from similarWords
-def getAlt(property_uri):
-    word_list = []
-    similarwords_file = open('similarwords','r')
-    for line in similarwords_file:
-        words = line.split('#')
-        if property_uri in words:
-            for word in words:
-                if re.match("^[a-zA-Z_]*$", word):
-                    word_list.append(word)
-    if word_list is not None:
-        word_list = list(set(word_list))        
-    return word_list                
-
-    #m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
-    #if (m != None):
+# Get a single alternative word from similarWords
+def getAlt(word):
+  for element in similarWords:
+    m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
+    if (m != None):
         #print(m.group('new'))
-     #   return m.group('new')
+        return m.group('new')
+  return None
 
 
 
@@ -656,13 +682,11 @@ def main(argv):
     answers = analyse_question(question)
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
-    uri = get_concept(question)
-
-    new_uri = gener_concept(uri)
-    property_q = get_prop(question)
-    get_medailles(property_q,new_uri)
-    
-    #second_try(property_q,new_uri)
+    # Dezen even uitgecomment, via analyse_question maak ik ook al SPARQL queries
+    #uri = get_concept(question)
+    #new_uri = gener_concept(uri)
+    #property_q = get_prop(question)
+    #get_medailles(property_q,new_uri)
     
     # Haal dubbele antwoorden uit de lijst
     if answers is not None:
@@ -677,9 +701,9 @@ def main(argv):
 
 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
-pairCounts = open('pairCounts', 'r',encoding='utf-8')
+#pairCounts = open('pairCounts', 'r',encoding='utf-8')
 #counts = re.split("\n+", pairCounts.read())
-#similarWords = open('similarwords', 'r', encoding='utf-8')
+similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
     
 if __name__ == "__main__":
   main(sys.argv)
