@@ -257,6 +257,7 @@ def analyse_question(question):
     print(ans)
     print('---------------')
     return ans
+    
   
   # Anders niks returnen
   return None
@@ -378,6 +379,7 @@ def get_prop(get_question):
     ## als een bijvoegelijk naamwoord voorkomt
     bijvnw = xml.xpath('//node[@pt="adj"]')
     for word in bijvnw:
+        uri_prop.append(word.attrib['root'])
         uri_prop.append(word.attrib['word'])
     
     ## vind het werkwoord en vraagtype(wie/waar/wanneer)        
@@ -458,13 +460,6 @@ def create_queries(property_uri,concept):
     querie_second = '"^^xsd:string. ?concept prop-nl:'
     querie_last = ' ?answer .}'
     
-    #kijken naar similar woord nog niet gelukt
-    for word in property_uri:
-        if getAlt(word) != None:
-            property_uri.append(getAlt(word))
-            break
-    #print(property_uri)
-    
     for word in property_uri:
         try:
             for i, j in {'*':'_','&':'_','$':'_','@':'_','/':'_','(':'', ')':''}.items():
@@ -490,7 +485,16 @@ def create_queries(property_uri,concept):
         print("Geen antwoord gevonden\n")
     return answer_list
 
-
+## als geen antwoord direct vindt, probeer dan met similar woorden of property
+def second_try(property_uri,conc):
+    simi_list = []
+    for word in property_uri:
+        for words in getAlt(word):
+            simi_list.append(words)
+    if simi_list is not None:
+        simi_list = list(set(simi_list))
+    create_queries(simi_list,conc)
+        
 
 ## haal alle properties uit relevante dbpedia pagina die hoort bij categorie sporten, personen en olympics
 def prop_list():
@@ -568,14 +572,24 @@ def find_answer(sentence):
 
 
 
-# Get a single alternative word from similarWords
-def getAlt(word):
-  for element in similarWords:
-    m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
-    if (m != None):
+# Get alternative words from similarWords
+def getAlt(property_uri):
+    word_list = []
+    similarwords_file = open('similarwords','r')
+    for line in similarwords_file:
+        words = line.split('#')
+        if property_uri in words:
+            for word in words:
+                if re.match("^[a-zA-Z_]*$", word):
+                    word_list.append(word)
+    if word_list is not None:
+        word_list = list(set(word_list))        
+    return word_list                
+
+    #m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
+    #if (m != None):
         #print(m.group('new'))
-        return m.group('new')
-  return None
+     #   return m.group('new')
 
 
 
@@ -643,9 +657,12 @@ def main(argv):
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     uri = get_concept(question)
+
     new_uri = gener_concept(uri)
     property_q = get_prop(question)
     get_medailles(property_q,new_uri)
+    
+    #second_try(property_q,new_uri)
     
     # Haal dubbele antwoorden uit de lijst
     if answers is not None:
@@ -662,7 +679,7 @@ sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
 pairCounts = open('pairCounts', 'r',encoding='utf-8')
 #counts = re.split("\n+", pairCounts.read())
-similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
+#similarWords = open('similarwords', 'r', encoding='utf-8')
     
 if __name__ == "__main__":
   main(sys.argv)
