@@ -60,6 +60,9 @@ def parseXofYQuestion(xml, question):
   ans = []
   # Vind de subject
   subject = xml.xpath('//node[@rel="su"]')
+  # Krijg de uri
+  uri = get_concept(question)
+  
   #directObject = xml.xpath('//node[@cat="np" and @rel="obj1"]')
   #if directObject is not []:
   #  for word in directObject:
@@ -71,27 +74,22 @@ def parseXofYQuestion(xml, question):
   
   #print('\tSUBJECT:\t' + subject)
   
+  
   if ' van ' in subject:
+    #TODO: X op een betere manier bepalen
     X = subject[0:subject.index(' van ')]
     X = X.rsplit()
     #print(X)
+    Y = uri
     
-    #X kijken naar similar words
-    Y = subject[subject.index(' van ')+5:]
-    Y = noPrepositions(Y)
     #print(Y)
   else:
     # Hij heeft het niet goed herkend
     #TODO: andere oplossing bedenken.
     return None
   
-  #TODO: Y bepalen aan de hand van deeleigen in plaats van checken wat er na ' van ' komt
-  Y2 = []
-  deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
-  for name in deeleigen:
-    Y2.append(name.attrib["word"])
-  Y2 = ' '.join(Y2)
-  print(Y2)
+  
+  
   
   
   # Als X uit meerdere woorden bestaat, probeer ze allemaal
@@ -167,23 +165,48 @@ def analyse_question(question):
   # Hoe -- vraag
   if questionType == 'hoe':
     print('\tHOE')
-    Y = []
-    deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
-    for name in deeleigen:
-      Y.append(name.attrib["word"])
-    Y = ' '.join(Y)
-    print(Y)
+    uri = get_concept(question)
+    print(uri)
+    X = get_prop(question)
+    print(X)
+    # Als het om lengte gaat
+    if 'lang' in X:
+      X = ['lengte']
+    ans = []
+    for j in X:
+      query = """
+        SELECT STR(?naam)
+        WHERE {
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_') + """ .
+          ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
+        }
+        ORDER BY DESC(?naam)
+        """
+      print(query)
+      # Geef de query door met SPARQLWrapper.
+      results = send_query(query)
+      
+      # Print het antwoord.
+      for result in results["results"]["bindings"]:
+        for arg in result :
+          answer = result[arg]["value"]
+          # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+          if 'http://' in answer:
+            answer = answer[31:].replace('_', ' ')
+          #print(answer)
+          ans.append(answer)
+    print('---------------')
+    print(ans)
+    print('---------------')
+    return ans
+    
     
   # Wanneer-vraag
   if questionType == 'wanneer':
     print('\tWANNEER')
-    Y = []
-    deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
-    for name in deeleigen:
-      Y.append(name.attrib["word"])
-    Y = ' '.join(Y)
+    uri = get_concept(question)
     #TODO: Y gebruiken om URI te vinden
-    print(Y)
+    print(uri)
     # Vind de werkwoorden, en gebruik dit om de property te vinden
     X = []
     werkwoorden = xml.xpath('//node[@pt="ww"]')
@@ -202,7 +225,7 @@ def analyse_question(question):
       query = """
         SELECT STR(?naam)
         WHERE {
-          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_') + """ .
           ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
         }
         ORDER BY DESC(?naam)
