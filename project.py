@@ -227,21 +227,14 @@ def gener_concept(conc):
         #TODO: hier gaat hij meteen de fout in bij de eerste vraag; hij zou Olympische Spelen moeten pakken als URI, niet Olympische Zomerspelen
         ## if Olympische Zomerspelen for that year doesn't exist, 
         ##change to Olympische Winterspelen
-        if "Olympische Spelen" in conc:
-            conc = conc.replace("Olympische Spelen","Olympische Zomerspelen")
         if re.search(conc, line):
-            context = line.split('  ')
+            context = line.split('\t')
             cont_list.append(context)
             if conc == context[0]:
                 concept = context[0]
-            else:
-                if "Olympische Spelen" in conc:
-                    conc = conc.replace("Olympische Spelen","Olympische Winterspelen")
-                    if re.search(conc, line):
-                        context = line.split('  ')
-                        cont_list.append(context)
-                        if conc == context[0]:
-                            concept = context[0]
+                return concept
+
+    print(concept)
     return concept
     
     
@@ -300,6 +293,7 @@ def get_prop(get_question):
 ## als gevraagt naar medailles
 def get_medailles(property_uri,conc):
     
+    
     wn = 0
     
     ##als gouden,goude enzovoort voorkomt in de vraag
@@ -321,6 +315,7 @@ def get_medailles(property_uri,conc):
             for i in property_uri:
                 if i[0].isupper() == True:
                     conc = i + ' op ' + 'de ' + conc
+                    print(conc)
         break
                     
     create_queries(property_uri,conc)
@@ -523,7 +518,9 @@ def main(argv):
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     uri = get_concept(question)
+    print(uri)
     new_uri = gener_concept(uri)
+    print(new_uri)
     property_q = get_prop(question)
     get_medailles(property_q,new_uri)
 
