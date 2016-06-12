@@ -74,19 +74,29 @@ def parseXofYQuestion(xml, question):
   
   #print('\tSUBJECT:\t' + subject)
   
+  X = get_prop(question)
+  print('----prop---')
+  print(X)
+  print('----------')
   
-  if ' van ' in subject:
+  Y = uri
+  print('----URI---')
+  print(Y)
+  print('----------')
+  
+  # Oud en minder goed
+  #if ' van ' in subject:
     #TODO: X op een betere manier bepalen
-    X = subject[0:subject.index(' van ')]
-    X = X.rsplit()
+    #X = subject[0:subject.index(' van ')]
+    #X = X.rsplit()
     #print(X)
-    Y = uri
+    #Y = uri
     
     #print(Y)
-  else:
+  #else:
     # Hij heeft het niet goed herkend
     #TODO: andere oplossing bedenken.
-    return None
+    #return None
   
   
   
@@ -142,16 +152,16 @@ def analyse_question(question):
   # De whd is niet leeg, we kunnen een vraagtype bepalen
   else:
     whd = tree_yield(whd[0])
-    #print('\tWHD:\t' + whd)
+    print('\tWHD:\t' + whd)
     #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
     questionType = getQuestionType(whd)
     # Nu weten we het vraagtype:
     
-  #if questionType is not None:
-    #print('\tQUESTION TYPE:\t' + questionType)
-  #else:
+  if questionType is not None:
+    print('\tQUESTION TYPE:\t' + questionType)
+  else:
     # Als q type None is even extra aandacht aan schenken.
-    #print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
+    print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
     
   # Wie/Wat is de/het X van Y
   if questionType == 'wie' or questionType == 'wat':
@@ -164,7 +174,6 @@ def analyse_question(question):
   
   # Hoe -- vraag
   if questionType == 'hoe':
-    print('\tHOE')
     uri = get_concept(question)
     print(uri)
     X = get_prop(question)
@@ -203,7 +212,6 @@ def analyse_question(question):
     
   # Wanneer-vraag
   if questionType == 'wanneer':
-    print('\tWANNEER')
     uri = get_concept(question)
     #TODO: Y gebruiken om URI te vinden
     print(uri)
@@ -636,7 +644,10 @@ def main(argv):
     new_uri = gener_concept(uri)
     property_q = get_prop(question)
     get_medailles(property_q,new_uri)
-
+    
+    # Haal dubbele antwoorden uit de lijst
+    answers = list(set(answers))
+    # Maak output.txt met de antwoorden
     give_output(ID, answers)
 
 
