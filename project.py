@@ -187,7 +187,7 @@ def analyse_question(question):
     print(X)
     # Als het om lengte gaat
     if 'lang' in X:
-      X = ['lengte']
+      X.append('lengte')
     ans = []
     for j in X:
       query = """
@@ -228,13 +228,13 @@ def analyse_question(question):
     werkwoorden = xml.xpath('//node[@pt="ww"]')
     for name in werkwoorden:
       X.append(name.attrib["word"])
-    print(X)
     # Als een werkwoord 'geboren' is, gaat het om een geboortedatum
     if 'geboren' in X:
-      X = ['geboortedatum']
-    else:
-      #Het gaat niet om een geboortedatum, probeer wat anders
-      print('Geen geboortedatum')
+      X.append('geboortedatum')
+    # Het is een wanneer-vraag, dus er zal vast naar een jaar gevraagd worden indien "Olympisch" aanwezig is (en er niet naar de sluiting gevraagd wordt)
+    if 'Olympisch' in uri and 'sluiting' not in X:
+      X.append('opening')
+    print(X)
     # Als X uit meerdere woorden bestaat, probeer ze allemaal
     ans = []
     for j in X:
