@@ -75,6 +75,8 @@ def parseXofYQuestion(xml, question):
   #print('\tSUBJECT:\t' + subject)
   
   X = get_prop(question)
+  # Haal dubbelen uit X
+  X = list(set(X))
   print('----prop---')
   print(X)
   print('----------')
@@ -633,8 +635,8 @@ def main(argv):
       question = sentence
       
     
-    #TODO: debug antwoorden weghalen
-    answers = ['Answer 1', 2, 'Answer 3']
+    # Lijst met antwoorden
+    answers = []
     #TODO: stuur de vraag door voor analyse, SPARQL.
     #Voorlopig zit het SPARQL query gedeelte al in analyse_question. Misschien apart maken
     answers = analyse_question(question)
@@ -646,7 +648,8 @@ def main(argv):
     get_medailles(property_q,new_uri)
     
     # Haal dubbele antwoorden uit de lijst
-    answers = list(set(answers))
+    if answers is not None:
+      answers = list(set(answers))
     # Maak output.txt met de antwoorden
     give_output(ID, answers)
 
