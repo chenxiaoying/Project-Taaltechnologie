@@ -219,11 +219,12 @@ def get_concept(get_question):
 def gener_concept(conc):
     cont_list = []
     concept = ''
-    pairCounts_file = open('pairCounts','r')
-    for line in pairCounts_file:
+    #pairCounts_file = open('pairCounts','r')
+    for line in pairCounts:
         line = line.rstrip()
         
         # change the wordgroup "Olympische Spelen" to Olympische Zomerspelen
+        #TODO: hier gaat hij meteen de fout in bij de eerste vraag; hij zou Olympische Spelen moeten pakken als URI, niet Olympische Zomerspelen
         ## if Olympische Zomerspelen for that year doesn't exist, 
         ##change to Olympische Winterspelen
         if "Olympische Spelen" in conc:
@@ -492,8 +493,6 @@ def alpino_parse(sent, host='zardoz.service.rug.nl', port=42424):
   xml = etree.fromstring(bytes_received)
   return xml
 
-
-
 def main(argv):
   # Maak de output.txt file eerst leeg voordat de antwoorden er bij in komen
   open(OUTPUT_FILE, 'w').close()
@@ -514,6 +513,7 @@ def main(argv):
     else:
       ID = ID + 1
       question = sentence
+      
     
     #TODO: debug antwoorden weghalen
     answers = ['Answer 1', 2, 'Answer 3']
@@ -536,7 +536,7 @@ def main(argv):
 
 sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
 sparql.setReturnFormat(JSON)
-#pairCounts = open('pairCounts', 'r', encoding='utf-8')
+pairCounts = open('pairCounts', 'r', encoding='utf-8')
 #counts = re.split("\n+", pairCounts.read())
 similarWords = re.split("\n+", open('similarwords', 'r', encoding='utf-8').read())
     
