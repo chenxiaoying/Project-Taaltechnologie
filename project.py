@@ -103,20 +103,21 @@ def parseXofYQuestion(xml, question):
     # Geef de query door met SPARQLWrapper.
     results = send_query(query)
     
-    # Print het antwoord.
-    for result in results["results"]["bindings"]:
-      for arg in result :
-        answer = result[arg]["value"]
-        # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
-        if 'http://' in answer:
-          answer = answer[31:].replace('_', ' ')
-        #print(answer)
-        ans.append(answer)
+      # Print het antwoord.
+  for result in results["results"]["bindings"]:
+	  for arg in result :
+		  answer = result[arg]["value"]
+		  # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+		  if 'http://' in answer:
+			  answer = answer[31:].replace('_', ' ')
+		  #print(answer)
+		  ans.append(answer)
         
   print('---------------')
   print(ans)
   print('---------------')
   return ans
+    
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
@@ -175,6 +176,7 @@ def analyse_question(question):
     print(X)
     print('---------------')
     # In principe wordt deze opgepakt door de default-case (zie onderaan deze functie)
+    #get_medailles(X,uri)
   
   # Hoe -- vraag
   if questionType == 'hoe':
@@ -261,6 +263,7 @@ def analyse_question(question):
     print(ans)
     print('---------------')
     return ans
+    
   
   # Default: geen vraagtype gevonden, probeer een antwoord te vinden aan de hand van de property en uri
   uri = get_concept(question)
@@ -411,11 +414,13 @@ def get_prop(get_question):
     ## soms is het subject een zelfstandig naamwoord
     names = xml.xpath('//node[@ntype]')
     for name in names:
+        uri_prop.append(name.attrib['root'])
         uri_prop.append(name.attrib["word"])
         
     ## als een bijvoegelijk naamwoord voorkomt
     bijvnw = xml.xpath('//node[@pt="adj"]')
     for word in bijvnw:
+        uri_prop.append(word.attrib['root'])
         uri_prop.append(word.attrib['word'])
     
     ## vind het werkwoord en vraagtype(wie/waar/wanneer)        
@@ -477,6 +482,7 @@ def get_medailles(property_uri,conc):
     ## voorbeeld: Nederland_op_de_Olympische_Zomerspelen_2012
     for word in property_uri:
         if "medaille" in word:
+            property_uri.append('os')
             for i in property_uri:
                 if i[0].isupper() == True:
                     conc = i + ' op ' + 'de ' + conc
@@ -484,6 +490,29 @@ def get_medailles(property_uri,conc):
         break
                     
     create_queries(property_uri,conc)
+
+## mogelijke queries voor specifieke gevallen
+## list-vraag
+def mogelijke_queries(property_uri,concept):
+	
+	## onderwerp is een categorie in dbpedia
+	## voorbeeld wie zijn nerderlands zwemmer
+    query = """select ?person
+            where {
+            ?person dcterms:subject category-nl:""" + concept + """ .} """
+            
+    ## voorbeeld welke personen coached Y
+    query = """select ?answer where {
+            ?answer  prop-nl:""" + property_uri + """ dbpedia-nl:""" + concept + """
+              .}"""
+    
+    ## wie heeft de coach van X ook gecoached
+    query = """select ?answer 
+           where { ?concept  prop-nl:""" + property_uri + """ ?concept1  .
+                   ?person foaf:isPrimaryTopicOf wiki-nl:""" + concept + """.
+                    ?p prop-nl:coach ?answer .}"""
+
+    results = send_query(query)
 
    
 ## Create queries using the generated properties and URI        
@@ -550,7 +579,15 @@ def prop_list():
     
     return answer_list
             
-
+## als geen antwoord direct vindt, probeer dan met similar woorden of property
+def second_try(property_uri,conc):
+    simi_list = []
+    for word in property_uri:
+        for words in getAlt(word):
+            simi_list.append(words)
+    if simi_list is not None:
+        simi_list = list(set(simi_list))
+    create_queries(simi_list,conc)
 
 
 
@@ -608,14 +645,19 @@ def find_answer(sentence):
 
 
 
-# Get a single alternative word from similarWords
-def getAlt(word):
-  for element in similarWords:
-    m = re.match(r"(?P<original>^"+word+r")\#(?P<new>[^#]+)", element)
-    if (m != None):
-        #print(m.group('new'))
-        return m.group('new')
-  return None
+# Get alternative words from similarWords
+def getAlt(property_uri):
+    word_list = []
+    similarwords_file = open('similarwords','r')
+    for line in similarwords_file:
+        words = line.split('#')
+        if property_uri in words:
+            for word in words:
+                if re.match("^[a-zA-Z_]*$", word):
+                    word_list.append(word)
+    if word_list is not None:
+        word_list = list(set(word_list))        
+    return word_list
 
 
 
@@ -687,6 +729,9 @@ def main(argv):
     #new_uri = gener_concept(uri)
     #property_q = get_prop(question)
     #get_medailles(property_q,new_uri)
+    
+    #second_try(property_q,new_uri)
+    
     
     # Haal dubbele antwoorden uit de lijst
     if answers is not None:
