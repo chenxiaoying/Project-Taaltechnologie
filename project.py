@@ -643,9 +643,7 @@ def main(argv):
     #TODO: aan de hand van deze analyse weten we welk soort SPARQL query we moeten maken
 
     uri = get_concept(question)
-    print(uri)
     new_uri = gener_concept(uri)
-    print(new_uri)
     property_q = get_prop(question)
     get_medailles(property_q,new_uri)
     
