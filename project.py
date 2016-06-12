@@ -85,6 +85,8 @@ def parseXofYQuestion(xml, question):
     #TODO: andere oplossing bedenken.
     return None
   
+  #TODO: y bepalen: met deeleigen? -> //node[@spectype="deeleigen"]
+  
   # Als X uit meerdere woorden bestaat, probeer ze allemaal
   for j in X:
     query = """
@@ -109,8 +111,7 @@ def parseXofYQuestion(xml, question):
         #print(answer)
         ans.append(answer)
         print(ans)
-  
-  return answer
+  return ans
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
