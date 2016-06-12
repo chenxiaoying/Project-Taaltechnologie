@@ -357,9 +357,11 @@ def create_queries(property_uri,concept):
     
     #kijken naar similar woord nog niet gelukt
     for word in property_uri:
-        if getAlt(word) != None:
-            property_uri.append(getAlt(word))
+        alt = getAlt(word)
+        if alt != None:
+            property_uri.append(alt)
             break
+
     #print(property_uri)
     
     for word in property_uri:
