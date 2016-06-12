@@ -69,23 +69,30 @@ def parseXofYQuestion(xml, question):
     subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
     subject = noPrepositions(subSentence)
   
-  print('\tSUBJECT:\t' + subject)
+  #print('\tSUBJECT:\t' + subject)
   
   if ' van ' in subject:
     X = subject[0:subject.index(' van ')]
     X = X.rsplit()
-    print(X)
+    #print(X)
     
     #X kijken naar similar words
     Y = subject[subject.index(' van ')+5:]
     Y = noPrepositions(Y)
-    print(Y)
+    #print(Y)
   else:
     # Hij heeft het niet goed herkend
     #TODO: andere oplossing bedenken.
     return None
   
-  #TODO: y bepalen: met deeleigen? -> //node[@spectype="deeleigen"]
+  #TODO: Y bepalen aan de hand van deeleigen in plaats van checken wat er na ' van ' komt
+  Y2 = []
+  deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
+  for name in deeleigen:
+    Y2.append(name.attrib["word"])
+  Y2 = ' '.join(Y2)
+  print(Y2)
+  
   
   # Als X uit meerdere woorden bestaat, probeer ze allemaal
   for j in X:
@@ -97,7 +104,7 @@ def parseXofYQuestion(xml, question):
       }
       ORDER BY DESC(?naam)
       """
-    print(query)
+    #print(query)
     # Geef de query door met SPARQLWrapper.
     results = send_query(query)
     
@@ -110,11 +117,17 @@ def parseXofYQuestion(xml, question):
           answer = answer[31:].replace('_', ' ')
         #print(answer)
         ans.append(answer)
-        print(ans)
+        
+  print('---------------')
+  print(ans)
+  print('---------------')
   return ans
 
 # Analyseer de vraag: bepaal het soort vraag
 # Wanneer? Wie? Wat? Welke? Hoeveel? In welk(e)? Hoe --?
+# Wie/wat is de/het X van Y
+# List-questions (Welke landen...)
+# Count-questions (Hoeveel landen...)
 def analyse_question(question):
   # Geef de vraag door naar de alpino parser, verkrijg de XML
   # Zoek naar de keywords als Wie, Wanneer, Wat, etc. mbv xpath
@@ -131,30 +144,86 @@ def analyse_question(question):
   # De whd is niet leeg, we kunnen een vraagtype bepalen
   else:
     whd = tree_yield(whd[0])
-    print('\tWHD:\t' + whd)
+    #print('\tWHD:\t' + whd)
     #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
     questionType = getQuestionType(whd)
     # Nu weten we het vraagtype:
     
-  if questionType is not None:
-    print('\tQUESTION TYPE:\t' + questionType)
-  else:
+  #if questionType is not None:
+    #print('\tQUESTION TYPE:\t' + questionType)
+  #else:
     # Als q type None is even extra aandacht aan schenken.
-    print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
-    
-  # Als whd 'hoeveel' is weten we direct waar het om gaat: de woorden die erna komen.
-  if questionType == 'hoeveel':
-    print(whd[8:])
+    #print('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
     
   # Wie/Wat is de/het X van Y
-  #TODO: werkt nog niet zoals het moet
   if questionType == 'wie' or questionType == 'wat':
-    #print('\tWie/Wat')
+    #print('\tWIE/WAT')
     # Check of het om een wie/wat is vraag gaat
     if xml.xpath('//node[@stype="whquestion" and @root="ben"]'):
-      print('\tWie/Wat is...')
+      #print('\tWIE/WAT IS DE X VAN Y')
       ans = parseXofYQuestion(xml, question)
       return ans
+  
+  # Hoe -- vraag
+  if questionType == 'hoe':
+    print('\tHOE')
+    Y = []
+    deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
+    for name in deeleigen:
+      Y.append(name.attrib["word"])
+    Y = ' '.join(Y)
+    print(Y)
+    
+  # Wanneer-vraag
+  if questionType == 'wanneer':
+    print('\tWANNEER')
+    Y = []
+    deeleigen = xml.xpath('//node[@spectype="deeleigen"]')
+    for name in deeleigen:
+      Y.append(name.attrib["word"])
+    Y = ' '.join(Y)
+    #TODO: Y gebruiken om URI te vinden
+    print(Y)
+    # Vind de werkwoorden, en gebruik dit om de property te vinden
+    X = []
+    werkwoorden = xml.xpath('//node[@pt="ww"]')
+    for name in werkwoorden:
+      X.append(name.attrib["word"])
+    print(X)
+    # Als een werkwoord 'geboren' is, gaat het om een geboortedatum
+    if 'geboren' in X:
+      X = ['geboortedatum']
+    else:
+      #Het gaat niet om een geboortedatum, probeer wat anders
+      print('Geen geboortedatum')
+    # Als X uit meerdere woorden bestaat, probeer ze allemaal
+    ans = []
+    for j in X:
+      query = """
+        SELECT STR(?naam)
+        WHERE {
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_') + """ .
+          ?onderwerp prop-nl:""" + j + ' ?' + 'naam' + """ .
+        }
+        ORDER BY DESC(?naam)
+        """
+      print(query)
+      # Geef de query door met SPARQLWrapper.
+      results = send_query(query)
+      
+      # Print het antwoord.
+      for result in results["results"]["bindings"]:
+        for arg in result :
+          answer = result[arg]["value"]
+          # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+          if 'http://' in answer:
+            answer = answer[31:].replace('_', ' ')
+          #print(answer)
+          ans.append(answer)
+    print('---------------')
+    print(ans)
+    print('---------------')
+    return ans
   
   # Anders niks returnen
   return None
