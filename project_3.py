@@ -114,13 +114,13 @@ def parseXofYQuestion(xml, question):
     
       # Print het antwoord.
   for result in results["results"]["bindings"]:
-	  for arg in result :
-		  answer = result[arg]["value"]
-		  # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
-		  if 'http://' in answer:
-			  answer = answer[31:].replace('_', ' ')
-		  #print(answer)
-		  ans.append(answer)
+      for arg in result :
+          answer = result[arg]["value"]
+          # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+          if 'http://' in answer:
+              answer = answer[31:].replace('_', ' ')
+          #print(answer)
+          ans.append(answer)
         
   print('---------------')
   print(ans)
@@ -282,7 +282,14 @@ def analyse_question_firstPass(question):
   print(X)
   ans = []
   for j in X:
-    query = """
+      if 'medaille' in X:
+          ans = get_medailles(X,uri)
+          print('---------------')
+          print(ans)
+          print('---------------')
+          return ans
+      else:
+          query = """
       SELECT STR(?naam)
       WHERE {
         ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + """ .
@@ -290,23 +297,23 @@ def analyse_question_firstPass(question):
       }
       ORDER BY DESC(?naam)
       """
-    print(query)
-    # Geef de query door met SPARQLWrapper.
-    results = send_query(query)
+          print(query)
+          # Geef de query door met SPARQLWrapper.
+          results = send_query(query)
     
-    # Print het antwoord.
-    for result in results["results"]["bindings"]:
-      for arg in result :
-        answer = result[arg]["value"]
-        # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
-        if 'http://' in answer:
-          answer = answer[31:].replace('_', ' ')
-        #print(answer)
-        ans.append(answer)
-  print('---------------')
-  print(ans)
-  print('---------------')
-  return ans
+          # Print het antwoord.
+          for result in results["results"]["bindings"]:
+            for arg in result :
+              answer = result[arg]["value"]
+              # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+              if 'http://' in answer:
+                answer = answer[31:].replace('_', ' ')
+              #print(answer)
+              ans.append(answer)
+          print('---------------')
+          print(ans)
+          print('---------------')
+          return ans
   
   # Anders niks returnen
   return None
@@ -798,73 +805,55 @@ def get_prop(get_question):
 
     return uri_prop
 
-   
-## Create queries using the generated properties and URI        
-def create_queries(property_uri,concept):
+def get_medailles(property_uri,conc):
     
-    printP("property:",property_uri)
-    printP("URI:",concept)
+    wn = 0
+    
+    ##als gouden,goude enzovoort voorkomt in de vraag
+    ##property wordt brons,goud,zilver
+    for word in property_uri:
+        if 'bron' in word:
+            property_uri[wn] = 'brons' 
+        elif 'goud' in word:
+            property_uri[wn] = 'goud'
+        elif 'zilver' in word:
+            property_uri[wn] = 'zilver'
+        wn = wn + 1
+    
+    ## als medailles gevraag van een land, zoek naar de juste URI
+    ## dbpedia page: land_op_de_hoeveelste spelen
+    ## voorbeeld: Nederland_op_de_Olympische_Zomerspelen_2012
+    for word in property_uri:
+        if "medaille" in word:
+            property_uri.append('os')
+            for i in property_uri:
+                if i[0].isupper() == True:
+                    conc = i + ' op ' + 'de ' + conc
 
-    answer_list = []
+        break
     
+    ans = []
+    
+                    
     querie_first = 'select ?answer where { ?concept  rdfs:label "'
     querie_second = '"^^xsd:string. ?concept prop-nl:'
     querie_last = ' ?answer .}'
     
-    #kijken naar similar woord nog niet gelukt
     for word in property_uri:
-        alt = getAlt(word)
-        if alt != None:
-            property_uri.append(alt)
-            break
-
-    #printP(property_uri)
-    
-    for word in property_uri:
-        try:
-            for i, j in {'*':'_','&':'_','$':'_','@':'_','/':'_','(':'', ')':''}.items():
-                word = word.replace(i, j)
-            #printP(word)
-            if 'concept' in locals():
-                querie_whole = querie_first + concept + querie_second + word + querie_last
-                sparql = SPARQLWrapper("http://nl.dbpedia.org/sparql")
-                sparql.setQuery(querie_whole)
-                sparql.setReturnFormat(JSON)
-                results = sparql.query().convert()
-                if results["results"]["bindings"] != []:
-                    for result in results["results"]["bindings"]:
-                        for arg in result:
-                            erase_url = result[arg]["value"].rsplit('/')
-                            answer = arg + " : " + erase_url[-1]
-                            answer_list.append(answer)
-                            printP(answer_list,'\n\n')
-        except Exception as e:
-            sys.stderr.write(e)
-            pass        
-    if answer_list == []:
-        printP("Geen antwoord gevonden\n")
-    return answer_list
-
-
-
-## haal alle properties uit relevante dbpedia pagina die hoort bij categorie sporten, personen en olympics
-def prop_list():
-    word_list = ["Sport","Person","Olympics"]
-    answer_list = []
-    for word in word_list:
-        query = """select distinct ?property where {
-        ?instance a <http://dbpedia.org/ontology/"""+ word + """> . 
-        ?instance ?property ?obj . }"""
-        results = send_query(query)
-        if results["results"]["bindings"] != []:
+        if 'conc' in locals():
+            querie_whole = querie_first + conc + querie_second + word + querie_last
+            results = send_query(querie_whole)
+            # Print het antwoord.
             for result in results["results"]["bindings"]:
-                for arg in result:
-                    erase_url = result[arg]["value"].rsplit('/')
-                    answer_list.append(erase_url[-1])
-                    #printP(answer_list,'\n\n')
-    
-    return answer_list
-            
+                for arg in result :
+                    answer = result[arg]["value"]
+                    # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
+                    if 'http://' in answer:
+                        answer = answer[31:].replace('_', ' ')
+                #print(answer)
+                ans.append(answer)
+
+    return ans
 
 
 
