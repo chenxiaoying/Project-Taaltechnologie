@@ -1,0 +1,120 @@
+s1879642-1	31
+s1879642-2	1
+s1879642-3	http://nl.dbpedia.org/resource/Vladimir_Poetin
+s1879642-4	1896
+s1879642-5	11028
+s1879642-6	Earl Bamber
+s1879642-7	http://nl.dbpedia.org/resource/Athene_(stad)	http://nl.dbpedia.org/resource/Griekenland
+s1879642-8	78
+s1879642-9	Geen antwoord gevonden
+s1879642-10	Muhammad Ali
+s2212781-11	Geen antwoord gevonden
+s2212781-12	11
+s2212781-13	2
+s2212781-14	Geen antwoord gevonden
+s2212781-15	http://nl.dbpedia.org/resource/Oudeschoot
+s2212781-16	Sven the Man
+s2212781-17	1986-04-23
+s2212781-18	The Flying Dutchman	Epic Zonderland
+s2212781-19	Epke Zonderland met Olympisch goud.jpg
+s2212781-20	Geen antwoord gevonden
+s2219832-21	http://nl.dbpedia.org/resource/Stuart_Pearce
+s2219832-22	Geen antwoord gevonden
+s2219832-23	Geen antwoord gevonden
+s2219832-24	De naam van de roos
+s2219832-25	http://nl.dbpedia.org/resource/Aanvaller_(voetbal)
+s2219832-26	Geen antwoord gevonden
+s2219832-27	Eduard Tsjaun
+s2219832-28	Eendracht maakt macht
+s2219832-29	Snowboardcross vrouwen
+s2219832-30	De naam van de roos
+s2221543-31	COL
+s2221543-32	Geen antwoord gevonden
+s2221543-33	staats-secretaris voor lichamelijke opvoeding Gaston Vidal
+s2221543-34	Rafer Johnson
+s2221543-35	2871
+s2221543-36	http://nl.dbpedia.org/resource/Olympische_Zomerspelen_1896	WS 1924 in Chamonix
+s2221543-37	http://nl.dbpedia.org/resource/Olympische_Winterspelen_2014	http://nl.dbpedia.org/resource/Olympische_Zomerspelen_2012
+s2221543-38	http://nl.dbpedia.org/resource/Internationaal_Olympisch_Comité
+s2221543-39	204
+s2221543-40	Inspire a Generation
+s2331373-41	COL
+s2331373-42	2016-08-05
+s2331373-43	26
+s2331373-44	http://nl.dbpedia.org/resource/Internationaal_Olympisch_Comité
+s2331373-45	205
+s2331373-46	Il Grillo
+s2331373-47	1964
+s2331373-48	Inspire a Generation
+s2331373-49	Rafer Johnson
+s2331373-50	Pyeongchang, Zuid-Korea
+s2344904-51	http://nl.dbpedia.org/resource/Olympische_Zomerspelen_1896	WS 1924 in Chamonix
+s2344904-52	Kort na 1300
+s2344904-53	http://nl.dbpedia.org/resource/Patrick_Pearson
+s2344904-54	Wie Ben Ik studio.png
+s2344904-55	The Flying Dutchman	Epic Zonderland
+s2344904-56	http://nl.dbpedia.org/resource/Rekstok
+s2344904-57	http://nl.dbpedia.org/resource/Dylan_Borlée	http://nl.dbpedia.org/resource/Jonathan_Borlée	http://nl.dbpedia.org/resource/Julien_Watrin	http://nl.dbpedia.org/resource/Kevin_Borlée
+s2344904-58	Snowboardcross vrouwen
+s2344904-59	Snowboardcross vrouwen
+s2344904-60	Duitse
+s2440571-61	http://nl.dbpedia.org/resource/Olympische_Zomerspelen_1896	WS 1924 in Chamonix
+s2440571-62	Geen antwoord gevonden
+s2440571-63	Geen antwoord gevonden
+s2440571-64	Los Angeles, Verenigde Staten
+s2440571-65	Los Angeles, Verenigde Staten
+s2440571-66	10500
+s2440571-67	http://nl.dbpedia.org/resource/Grégory_Baugé	http://nl.dbpedia.org/resource/Victoria_Pendleton
+s2440571-68	16
+s2440571-69	Tokio, Japan
+s2440571-70	Inspire a Generation
+s2478579-71	http://nl.dbpedia.org/resource/August_Diehl	http://nl.dbpedia.org/resource/Daniel_Brühl	http://nl.dbpedia.org/resource/Anna_Maria_Mühe	http://nl.dbpedia.org/resource/Thure_Lindhardt
+s2478579-72	Inspire a Generation
+s2478579-73	7
+s2478579-74	1,89 m
+s2478579-75	Geen antwoord gevonden
+s2478579-76	89
+s2478579-77	82
+s2478579-78	COL
+s2478579-79	Geen antwoord gevonden
+s2478579-80	Stadion Het Diekman
+s2493403-81	http://nl.dbpedia.org/resource/Olympische_Zomerspelen_1896	WS 1924 in Chamonix
+s2493403-82	Geen antwoord gevonden
+s2493403-83	Geen antwoord gevonden
+s2493403-84	Chamonix, Frankrijk
+s2493403-85	6797
+s2493403-86	http://nl.dbpedia.org/resource/Elizabeth_II_van_het_Verenigd_Koninkrijk
+s2493403-87	Chamonix, Frankrijk
+s2493403-88	Geen antwoord gevonden
+s2493403-89	1862
+s2493403-90	14
+s2542722-91	Geen antwoord gevonden
+s2542722-92	http://nl.dbpedia.org/resource/Athene_(stad)	http://nl.dbpedia.org/resource/Griekenland
+s2542722-93	http://nl.dbpedia.org/resource/Internationaal_Olympisch_Comité
+s2542722-94	staats-secretaris voor lichamelijke opvoeding Gaston Vidal
+s2542722-95	Chamonix, Frankrijk
+s2542722-96	31
+s2542722-97	31
+s2542722-98	Geen antwoord gevonden
+s2542722-99	Gerald Ford	Spiro Agnew
+s2542722-100	Geen antwoord gevonden
+s2546167-101	http://nl.dbpedia.org/resource/Internationaal_Olympisch_Comité
+s2546167-102	Rio de Janeiro, Brazilië
+s2546167-103	Kort na 1300
+s2546167-104	Rio de Janeiro, Brazilië
+s2546167-105	2016-08-21
+s2546167-106	221
+s2546167-107	6797
+s2546167-108	Earl Bamber
+s2546167-109	2
+s2546167-110	Geen antwoord gevonden
+s2548798-111	2004
+s2548798-112	Kort na 1300
+s2548798-113	Geen antwoord gevonden
+s2548798-114	http://nl.dbpedia.org/resource/Oudeschoot
+s2548798-115	Geen antwoord gevonden
+
+
+
+
+En nu ga ik echt even wat slaap pakken. Deze versie is wel ongeveer 2x zo langzaam namelijk..
