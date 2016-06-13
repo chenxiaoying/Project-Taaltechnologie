@@ -12,7 +12,7 @@ from  lxml import etree
 VERBOSE_LEVEL = 3
 MAXITERS = 10
 OUTPUT_FILE = 'output.txt'
-QUESTIONTYPES = ['wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'] #TODO: questiontypes uitbreiden. 'hoe' moet helemaal aan het eind (zodat 'hoeveel' eerst komt). Dan kunnen we verder zoeken: hoe lang, hoe vaak, etc.
+QUESTIONTYPES = ['wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe']
 usedAltWords = []
 
 
@@ -73,16 +73,12 @@ def parseXofYQuestion(xml, question):
   uri = get_concept(question)
   uri = gener_concept(uri)
   
-  #directObject = xml.xpath('//node[@cat="np" and @rel="obj1"]')
-  #if directObject is not []:
-  #  for word in directObject:
-  #    ding = tree_yield(word)
-  #    print(ding)
+
   if subject is not []:
     subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
     subject = noPrepositions(subSentence)
   
-  #print('\tSUBJECT:\t' + subject)
+
   
   X = get_prop(question)
   # Haal dubbelen uit X
@@ -108,7 +104,7 @@ def parseXofYQuestion(xml, question):
       }
       ORDER BY DESC(?naam)
       """
-    #print(query)
+    
     # Geef de query door met SPARQLWrapper.
     results = send_query(query)
     
@@ -119,7 +115,7 @@ def parseXofYQuestion(xml, question):
           # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
           if 'http://' in answer:
               answer = answer[31:].replace('_', ' ')
-          #print(answer)
+          
           ans.append(answer)
         
   print('---------------')
@@ -141,7 +137,6 @@ def analyse_question_firstPass(question):
   questionType = None
   
   # Vind de whd (wat, wie, hoeveel --, wanneer, hoe --, etc)
-  #TODO: misschien checken of deze leeg is voordat hij verder gaat.
   whd = xml.xpath('//node[@rel="whd"]')
   # Als whd leeg is, is het vraagtype niet goed te bepalen
   if whd == []:
@@ -162,7 +157,7 @@ def analyse_question_firstPass(question):
     
   # Wie/Wat is de/het X van Y
   if questionType == 'wie' or questionType == 'wat':
-    #print('\tWIE/WAT')
+
     # Check of het om een wie/wat is vraag gaat
     if xml.xpath('//node[@stype="whquestion" and @root="ben"]'):
       #print('\tWIE/WAT IS DE X VAN Y')
@@ -174,7 +169,7 @@ def analyse_question_firstPass(question):
   
   # Hoeveel-vraag
   if questionType == 'hoeveel':
-    #TODO: als iets van '...Zomerspelen van 2008' er in voor komt is uri mogelijk '2008'
+
     uri = get_concept(question)
     uri = gener_concept(uri)
     print('uri---------------')
@@ -185,7 +180,7 @@ def analyse_question_firstPass(question):
     print(X)
     print('---------------')
     # In principe wordt deze opgepakt door de default-case (zie onderaan deze functie)
-    #get_medailles(X,uri)
+
   
   # Hoe -- vraag
   if questionType == 'hoe':
@@ -218,7 +213,7 @@ def analyse_question_firstPass(question):
           # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
           if 'http://' in answer:
             answer = answer[31:].replace('_', ' ')
-          #print(answer)
+
           ans.append(answer)
     print('---------------')
     print(ans)
@@ -230,7 +225,6 @@ def analyse_question_firstPass(question):
   if questionType == 'wanneer':
     uri = get_concept(question)
     uri = gener_concept(uri)
-    #TODO: Y gebruiken om URI te vinden
     print(uri)
     # Vind de werkwoorden, en gebruik dit om de property te vinden
     X = []
@@ -266,7 +260,6 @@ def analyse_question_firstPass(question):
           # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
           if 'http://' in answer:
             answer = answer[31:].replace('_', ' ')
-          #print(answer)
           ans.append(answer)
     print('---------------')
     print(ans)
@@ -308,7 +301,6 @@ def analyse_question_firstPass(question):
               # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
               if 'http://' in answer:
                 answer = answer[31:].replace('_', ' ')
-              #print(answer)
               ans.append(answer)
           print('---------------')
           print(ans)
@@ -334,7 +326,6 @@ def analyse_question(question):
   words = re.sub("[^\w]", " ",  question).split()
   
   # Vind de whd (wat, wie, hoeveel --, wanneer, hoe --, etc)
-  #TODO: misschien checken of deze leeg is voordat hij verder gaat.
   whd = xml.xpath('//node[@rel="whd"]')
   # Als whd leeg is, is het vraagtype niet goed te bepalen
   if whd == []:
@@ -342,22 +333,10 @@ def analyse_question(question):
   # De whd is niet leeg, we kunnen een vraagtype bepalen
   else:
     whd = tree_yield(whd[0])
-    #printP('\tWHD:\t' + whd)
-    #TODO: check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
+    #check of woorden als 'wie', 'wat', etc in de whd zitten en aan de hand hiervan het vraagtype bepalen
     questionType = getQuestionType(whd)
-    # Nu weten we het vraagtype:
+    # Nu weten we het vraagtype
     
-  #if questionType is not None:
-    #printP('\tQUESTION TYPE:\t' + questionType)
-  #else:
-    # Als q type None is even extra aandacht aan schenken.
-    #printP('\tQUESTION TYPE:\t None!!!!!!!!!!!!')
-    
-  # find the subject
-  #subject = xml.xpath('//node[@rel="su"]')
-  #subSentence = subStr((int(subject[0].attrib["begin"]), int(subject[0].attrib["end"])), question)
-  #subject = noPrepositions(subSentence)
-
   # Finding all the nouns
   nodes = xml.xpath('//node[@pt="n"]') #spectype="deeleigen"]')
   nouns = []
@@ -409,12 +388,6 @@ def analyse_question(question):
             printP("\t\t  Also added by extent:\t" + nounWithAdj)
 
   printP("\n", 3)
-
-  # Find URIs using important POSs:
-  #printP("Looking for URIs:", 2, 1)
-  #for pos in importantPOSs:
-  #  (prop, uri) = findURI(pos, 10)
-  #  if prop != None: printP("Found PROPRTY:\t" + prop + "\t@: " + uri, 2, 2)
  
   # Find Subject:
   nodes = xml.xpath('//node[@rel="su"]') #spectype="deeleigen"]')
@@ -433,7 +406,7 @@ def analyse_question(question):
   
   # Find Object for attribute:
   objectToCountOn = None
-  nodes = xml.xpath('//node[@rel="obj1"]') #spectype="deeleigen"]')
+  nodes = xml.xpath('//node[@rel="obj1"]')
   if nodes != None: 
     if isinstance(nodes, list) and len(nodes) != 0: objectToCountOn = getSubStringFromNode(nodes[0], question)
     else: objectToCountOn = getSubStringFromNode(nodes, question)
@@ -498,14 +471,6 @@ def analyse_question(question):
       answer = tryKeywordsOnURIs(keywords, findURIs(nouns))
       if answer != None: return answer
   return answer  
-  #printP("\n", 3)
-  #objectToCountURIs = findURIs(objectToCount)
-
-  #printP("\n", 3)
-
-  #for uri in objectToCountOnURIs:
-  #  print(getAllProps(uri[1]))
-
 
 
 
@@ -610,7 +575,6 @@ def getAllProps(uri):
 def findURIs(string, it=0):
   if string == None: return None
 
-#  words = re.sub("[^\w]", " ",  string).split()
   if isinstance(string, list): words = string
   else: words = re.split(' ', string)
   if words == None or len(words) == 0: return None
@@ -629,7 +593,6 @@ def findURIs(string, it=0):
  
   for idx in range(len(results)):
     resultWords = re.split(' ',results[idx][0].lower())
-    #resultWords = re.split('_',results[idx][1].lower())
     for word in words:
       if word.lower() in resultWords:
         results[idx][3] += 75
@@ -637,11 +600,6 @@ def findURIs(string, it=0):
     results[idx][3] -= len(results[idx][1])
     
   updatedResults = results
-
-#  for idx1 in range(len(results)):
-#    for idx2 in range(idx1, len(results)):
-#      if results[idx1][1] == results[idx2][1]:
-#        updatedResults[idx1][3] += results[idx2][3]
 
   updatedResults.sort(key=lambda x: x[3], reverse=True)
   if VERBOSE_LEVEL > 2:
@@ -730,14 +688,13 @@ def gener_concept(conc):
     cont_list = []
     concept = ''
     
-    ## ik weet niet waarom als dit niet hier staat, kan hij geen URI vinden behalve Olympische Spelen
     pairCounts_file = open('pairCounts','r',encoding='utf-8')
 
     for line in pairCounts_file:
         line = line.rstrip()
         context = line.split('\t')
         
-        ## verbetert naar als achter de Olympische Spelen een number(meestal is het een jaargetal) volgt, zoekt naar juste olympisch winter/zomer spelen
+        ## als achter de Olympische Spelen een number(meestal is het een jaargetal) volgt, zoekt naar juste olympisch winter/zomer spelen
         ## als geen jaar achter volgt, pakt URI van olympische spelen
         if "Olympische Spelen" in conc and re.search('\d',conc) != None:
             conc = conc.replace("Olympische Spelen","Olympische Zomerspelen")
@@ -850,7 +807,6 @@ def get_medailles(property_uri,conc):
                     # Maak van de link een naam (deze gewoon via SPARQL opvragen zorgt er voor dat hij string-waarden niet meer als antwoord vind)
                     if 'http://' in answer:
                         answer = answer[31:].replace('_', ' ')
-                #print(answer)
                 ans.append(answer)
 
     return ans
@@ -858,35 +814,6 @@ def get_medailles(property_uri,conc):
 
 
 
-
-# Find a URI given a keyword
-#def findURI(word, it=0):
-#  uri = None
-#  results = []
-#
-#  for element in counts:
-#    m = re.match(r"(^"+word+")\s"+".*", element, re.I)
-#    if (m != None):
-#      # printP(m.group(0))
-#      parts = re.split("\t", m.group(0))
-#      results.append([parts[0], parts[1], parts[2]])
-#
-#  for (prop, uri, count) in results:
-#    if uri != None:
-#      return (prop,uri)
-#
-#  while (uri==None)and(it<MAXITERS):
-#    newWord = getAlt(word)
-#    if (newWord != word and newWord != None):
-#      (prop, uri) = findURI(newWord, it+1)
-#      return (prop, uri)
-#
-#  words = re.sub("[^\w]", " ",  word).split()
-#
-#  if (len(words) > 1): findURI(' '.join(words[1:]), it+1)
-#
-#  return (None, None)
-  
   
 
 # Output format: ID \t Answer1 \t Answer2...
@@ -957,7 +884,6 @@ def alpino_parse(sent, host='zardoz.service.rug.nl', port=42424):
     if not byte:
       break
     bytes_received += byte
-#  printP(bytes_received.decode('utf-8'), file=sys.stderr)
   xml = etree.fromstring(bytes_received)
   return xml
 
@@ -968,9 +894,9 @@ def main(argv):
   ID = 0
   #TODO: tijdelijk gewoon meteen de vragen txt meegeven voor het gemak
   sys.stdin = open('olympics_questions.txt', 'r', encoding='ISO-8859-1')
-#  sys.stdin = open('questions_hoeveel.txt', 'r', encoding='utf-8')
+
   
-#  prop_list()
+
   for sentence in sys.stdin:
     sentence = sentence.rstrip()
     # Haal het ID en de vraag uit de zin
