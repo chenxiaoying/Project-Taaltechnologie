@@ -840,6 +840,7 @@ def get_medailles(property_uri,conc):
     querie_last = ' ?answer .}'
     
     for word in property_uri:
+        word = word.replace('*', '_').replace('/', '_').replace('(', '').replace(')', '')
         if 'conc' in locals():
             querie_whole = querie_first + conc + querie_second + word + querie_last
             results = send_query(querie_whole)
