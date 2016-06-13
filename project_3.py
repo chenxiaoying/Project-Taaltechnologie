@@ -1002,7 +1002,8 @@ def main(argv):
       
     
     # Haal dubbelen uit de antwoorden-lijst
-    answers = list(set(answers))
+    if answers is not None:
+      answers = list(set(answers))
     give_output(ID, answers)
 
 
