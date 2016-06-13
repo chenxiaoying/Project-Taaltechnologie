@@ -103,8 +103,8 @@ def parseXofYQuestion(xml, question):
     query = """
       SELECT STR(?naam)
       WHERE {
-        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_').replace('*', '_').replace('/', '_') + """ .
-        ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_') + ' ?' + 'naam' + """ .
+        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + Y.replace(' ', '_').replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + """ .
+        ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + ' ?' + 'naam' + """ .
       }
       ORDER BY DESC(?naam)
       """
@@ -202,8 +202,8 @@ def analyse_question_firstPass(question):
       query = """
         SELECT STR(?naam)
         WHERE {
-          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_') + """ .
-          ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_') + ' ?' + 'naam' + """ .
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + """ .
+          ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + ' ?' + 'naam' + """ .
         }
         ORDER BY DESC(?naam)
         """
@@ -250,8 +250,8 @@ def analyse_question_firstPass(question):
       query = """
         SELECT STR(?naam)
         WHERE {
-          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_') + """ .
-          ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_') + ' ?' + 'naam' + """ .
+          ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + """ .
+          ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + ' ?' + 'naam' + """ .
         }
         ORDER BY DESC(?naam)
         """
@@ -285,8 +285,8 @@ def analyse_question_firstPass(question):
     query = """
       SELECT STR(?naam)
       WHERE {
-        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_') + """ .
-        ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_') + ' ?' + 'naam' + """ .
+        ?onderwerp foaf:isPrimaryTopicOf wiki-nl:""" + uri.replace(' ', '_').replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + """ .
+        ?onderwerp prop-nl:""" + j.replace('*', '_').replace('/', '_').replace('(', '').replace(')', '') + ' ?' + 'naam' + """ .
       }
       ORDER BY DESC(?naam)
       """
