@@ -15,13 +15,11 @@ Voor de volgende vragen heeft het systeem een goed antwoord gevonden:
 25
 29
 35
-(37) (Als de spelfout in de vraag gefixed is wordt het antwoord wel gevonden)
+(37) (Als de spelfout in de vraag gefixed is wordt het antwoord wel gevonden, namelijk: Alpineskiën. De output in 'output_groep13.txt' bij deze vraag klopt dus niet vanwege een spelfout in de vraag)
 45
 48
 
 
-
-Bijzonderheden (en vragen die mogelijk goed gerekend zouden moeten worden):
-Vraag 4: Er is op de pagina 'http://nl.dbpedia.org/page/Olympische_Zomerspelen_2004' geen veld voor vlaggendrager. Ik weet niet zeker of het ook ergens anders te vinden is op dbpedia, dus misschien is het gewoonweg niet te vinden met dbpedia. Als dit het geval is, is het feit dat het systeem geen antwoord gevonden had correct.
+Bijzonderheden (en antwoorden die mogelijk goed gerekend zouden kunnen worden):
 Vraag 37 bevat een spelfout: "enjamin" moet "Benjamin" zijn. Om deze reden heeft het programma hier geen antwoord op gevonden. Als deze spelfout niet aanwezig is in de vraag wordt het juiste antwoord wel gevonden, namelijk: Alpineskiën
-Vraag 43: Het antwoord hier op is niet te vinden. Het systeem had 204 gevonden, dat gelijk is aan het totaal aantal landen op de Olympische Spelen 2012. We weten niet zeker of elk van deze landen ook meededen bij het boogschieten, dus we weten niet zeker of dit antwoord correct is.
+Vraag 43: Het antwoord hier op is nergens te vinden. Het systeem had 204 gevonden, dat gelijk is aan het totaal aantal landen op de Olympische Spelen 2012. We weten niet zeker of elk van deze landen ook meededen bij het boogschieten, dus we weten niet zeker of dit antwoord correct is.
