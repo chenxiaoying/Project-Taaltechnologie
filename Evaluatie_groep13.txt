@@ -15,6 +15,7 @@ Voor de volgende vragen heeft het systeem een goed antwoord gevonden:
 25
 29
 35
+(37) (Als de spelfout in de vraag gefixed is wordt het antwoord wel gevonden)
 45
 48
 
@@ -24,7 +25,7 @@ Voor de volgende vragen heeft het systeem een goed antwoord gevonden:
 
 Bijzonderheden:
 Vraag 4: Er is op de pagina 'http://nl.dbpedia.org/page/Olympische_Zomerspelen_2004' geen veld voor vlaggendrager. Ik weet niet zeker of het ook ergens anders te vinden is op dbpedia, dus misschien is het gewoonweg niet te vinden met dbpedia.
-Vraag 37 bevat een spelfout: "enjamin" moet "Benjamin" zijn. Om deze reden heeft het programma hier geen antwoord op gevonden.
+Vraag 37 bevat een spelfout: "enjamin" moet "Benjamin" zijn. Om deze reden heeft het programma hier geen antwoord op gevonden. Als deze spelfout niet aanwezig is in de vraag wordt het juiste antwoord wel gevonden, namelijk: Alpineskiën
 Vraag 43: Ik kan het juiste antwoord zo gauw niet vinden, dus ik weet niet zeker of deze goed was.
 
 
