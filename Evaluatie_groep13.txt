@@ -1,0 +1,30 @@
+Project Taaltechnologie: Evaluatie antwoorden
+Group 13: Roald Baas, Xiaoying Chen, Anne Wanningen
+
+Voor de volgende vragen heeft het systeem een goed antwoord gevonden:
+1
+2
+3
+7
+8
+9
+13
+16
+21
+22
+25
+29
+35
+45
+48
+
+
+
+
+
+Bijzonderheden:
+Vraag 4: Er is op de pagina 'http://nl.dbpedia.org/page/Olympische_Zomerspelen_2004' geen veld voor vlaggendrager. Ik weet niet zeker of het ook ergens anders te vinden is op dbpedia, dus misschien is het gewoonweg niet te vinden met dbpedia.
+Vraag 37 bevat een spelfout: "enjamin" moet "Benjamin" zijn. Om deze reden heeft het programma hier geen antwoord op gevonden.
+Vraag 43: Ik kan het juiste antwoord zo gauw niet vinden, dus ik weet niet zeker of deze goed was.
+
+
