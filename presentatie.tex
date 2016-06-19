@@ -1,0 +1,72 @@
+\documentclass[pdf]{beamer}
+\mode<presentation>{}
+
+\title{Presentation}
+\subtitle{Taaltechnologie}
+\author{Roald Baas \& Xiaoying Chen \& Anne Wanningen\\(group 13)}
+\date{June 20, 2016}
+
+% Short presentation: 7 minutes
+% special/interesting/original features of your system
+% an indication of the results on the test questions (good/not so good)
+% a short analysis of which type of questions your system does well/not so well
+
+\begin{document}
+
+  \begin{frame}
+    \titlepage
+  \end{frame}
+
+
+  \begin{frame}{Features}
+    \begin{itemize}
+      \item Split up in two methods: fast one and a slower more thorough one.
+      \item Python3
+      \item pairCounts and similarwords
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}{Method 1}
+    \begin{itemize}
+      \item Question type -- who, what, where, which, when, how (much) % Find URIs, properties
+      \item Slight differences
+      \item "Wie/wat is de/het X van Y"
+      \item Get URI and property
+      \item If this fails...
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}{Method 2}
+    \begin{itemize}
+      \item Question type % Find URIs, properties
+      \item Nouns and their adjectives
+      \item NPs % Noun phrases
+      \item Important POSs % Parts of speech
+      \item Subject
+      \item Countable object
+      \item Try keywords on URIs
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}{Results}
+    \begin{itemize}
+      \item Results on the test questions here.
+      \item 16 correct answers (assuming no spelling error in question 37)
+      \item Recall: 16/50 = 0.32
+    \end{itemize}
+  \end{frame}
+  
+  \begin{frame}{Analysis}
+    \begin{itemize}
+      \item Which type of questions went well, which went not so well.
+      \item "Wie/wat is de/het X van Y" had high performance.
+    \end{itemize}
+  \end{frame}
+
+  \begin{frame}{The End}
+    \begin{center}
+      Thank you for your time.
+    \end{center}
+  \end{frame}
+
+\end{document}
