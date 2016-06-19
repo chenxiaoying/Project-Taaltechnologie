@@ -20,18 +20,29 @@
 
   \begin{frame}{Features}
     \begin{itemize}
-      \item Split up in two methods: fast one and a slower more thorough one.
       \item Python3
       \item pairCounts and similarwords
+      \item Two methods: fast \& slow (more thorough)
     \end{itemize}
   \end{frame}
   
   \begin{frame}{Method 1}
     \begin{itemize}
-      \item Question type -- who, what, where, which, when, how (much) % Find URIs, properties
+      \item Question type % Find URIs, properties
+      \begin{itemize}
+        \item 'wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'
+      \end{itemize}
       \item Slight differences
-      \item "Wie/wat is de/het X van Y"
-      \item Get URI and property
+      \begin{itemize}
+        \item 'hoe lang' $\rightarrow$ lengte
+        \item "Wie/wat is de/het X van Y"
+      \end{itemize}
+      \item Get property and URI
+      \begin{itemize}
+        \item Find subject, use it as property
+        \item Find object, use it to find URI
+      \end{itemize}
+      \item Query
       \item If this fails...
     \end{itemize}
   \end{frame}
