@@ -1,0 +1,63 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[english]{babel}
+\usepackage[round,longnamesfirst]{natbib}
+
+\title{Report Language Technology}
+\author{Roald Baas \& Xiaoying Chen \& Anne Wanningen\\(group 13)}
+%\date{ }
+
+\begin{document}
+
+%The report should be approx. 5 pages and should ideally address the following topics:
+
+%    A description of dbpedia
+%    A description of the task (question answering, what kind of questions)
+%    A description of the architecture and major componets of your QA-system
+%    Additional knowledge resources used (if any)
+%    Results on the test questions
+%    Error analysis
+%    Division of work in your team (who contributed to what)
+%    Each group only submits a single report
+
+\maketitle
+
+\section{Introduction}
+% Description of the task
+% Description of dbpedia (use of dbpedia to do task), dbpedia citation?
+% Next, we describe the architecture of the system
+
+
+
+\section{Architecture}
+% Use of pairCounts + similarwords
+%TODO: alpino citation? xpath citation?
+The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URIs and properties of questions. Alpino is used to parse questions, on which in turn xpath is used to extract keywords.
+
+%TODO: SPARQL gedeelte
+
+% Major components, how everything works, xpath SPARQL etc.
+
+\subsection{Method 1}
+% First faster method
+
+
+\subsection{Method 2}
+% Second slower method
+
+
+
+\section{Results}
+% Results
+% 41 questions answered, 15 correct. Precision, recall, etc.
+
+\subsection{Error analysis}
+% What went wrong
+
+
+
+
+\bibliographystyle{plainnat}
+\bibliography{literature}
+
+
+\end{document}
