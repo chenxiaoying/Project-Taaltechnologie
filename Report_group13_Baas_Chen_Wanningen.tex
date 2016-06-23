@@ -6,7 +6,7 @@
 \date{\today}
 \author{
   {\small Group 13: }
-  {\small Xiaoying Chen}{\tiny(s...)},
+  {\small Xiaoying Chen}{\tiny(s2714140)},
   {\small Roald Baas}{\tiny(s...)},
   {\small Anne Wanningen}{\tiny(s2219832)}
 }
@@ -31,7 +31,7 @@
 % Description of the task
 % Description of dbpedia (use of dbpedia to do task), dbpedia citation?
 % Next, we describe the architecture of the system
-
+Our task for the course was to build a Dutch question-answer system with the theme of Olympics Games based on Dutch Dbpedia. DBpedia is a project which extract information from Wikipedia and is free for use. Even though DBpedia has 111 different language edition, which English edition is the largest. But since we had to built a Dutch QA-system, we will use the Dutch edition DBpedia. Using SPARQL query can easily search for relation and entities of concepts in DBpedia. When the QA-system read a question from the input, it should be able to give the correct answer. We expect our QA-system will be able to find different types questions. For example, “Wie is de coach van Micheal Phelps?”. This is a typical Wie/wat is de/het X van Y question. Of course the system was also expected to answer list-questions(e.g. Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?) and count-questions(e.g Hoeveel landen doen mee aan de Olympische Zomerspelen 2012?). The questions will be ask in different ways that the standard format, so the system has to analyze the question first, and then search for the answer with analyzed information.
 
 
 \section{Architecture}
@@ -55,7 +55,7 @@ The system was built in Python3 (http://www.python.org) using the libraries lxml
 \section{Results}
 % Results
 % 41 questions answered, 15 correct. Precision, recall, etc.
-We run our QA-system on the 50 test questions, we found answers for 41 questions, but only 15 answers were correct. Method 1 had found 5 correct answers and 10 correct answers for method 2. The precision for our system was 0.366, our recall was 0.3 and our f-score was 0.33.
+We run our QA-system on the 50 test questions, we found answers for 41 questions, but only 15 answers were correct. Method 1 had found 5 correct answers and 10 correct answers for method 2. The precision for method 1 was 0.83 and for method 2 was 0.22. The recall for method 1 and 2 were respectively 0.12 and 0.80.  If we compare this two methods, we noticed that even method 1 has a higher precision, but method 2 has a better recall, so we can conclude that method 2 performed better than method 1 when finding the correct answers. The precision for our system was 0.366, our recall was 0.3 and our f-score was 0.33.
 
 Most of the questions our system found a correct answers were with the question format: Wie/Wat is de/het X van Y. In order to find answers for this type basic questions, property and URI are only needed. Once the property(X) and URI(Y) are found in the sentence, it can simply apply to the SPARQL-queries and search for the correct answer in dbpedia.
 
@@ -95,6 +95,9 @@ We fails to answer a lot of questions correctly. The questions were ask in diffe
 \begin{enumerate}
 \item One single type SPARQL-query for all questions \\
 There are questions that give a property and the value of that property, which ask for the URI. Take question 34 as example, “Wiens bijnaam is Lightning Bolt?”. This is a type question that our system could not find correct answer. But actually, this can be easy to answer. After Alpino had parse the question and find the property and property value, make the corresponding SPARQL-queries will successfully get the correct answer. One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
+
+\item Difficulty on finding correct URI by method 1 \\
+When the phrase “Olympische Zomerspelen” or similar phrase appear in the sentence, we will use it as URI in the SPARQL-query. But it is not always the correct URI for the query. For example, question 10 of the test question: “Hoeveel Nederlandse sporters deden mee aan de Olympische Winterspelen van 2002?” When we perform method 1, the system get the URI as “Olympische Winterspelen 2002“, where it should be “Nederland\_op\_de\_Olympische\_Winterspelen\_2002“. When a country name was mentioned in the question, most of the time the correct URI should be in this format for finding the correct answer. But our system did not check if the question contain a country name in order to generate the correct the URI. So we fails to answer the questions when it ask for how many athletes come from a country or who carries the flag for a country.
 \end{enumerate}
 
 
