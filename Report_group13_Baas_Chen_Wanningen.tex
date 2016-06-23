@@ -2,9 +2,15 @@
 \usepackage[english]{babel}
 \usepackage[round,longnamesfirst]{natbib}
 
-\title{Report Language Technology}
-\author{Roald Baas \& Xiaoying Chen \& Anne Wanningen\\(group 13)}
-%\date{ }
+\title{ {\small Practical Language Technology:}\\{\Large a Q/A System for DBpedia}\\{\small with a Focus on The Olympic Games}}
+\date{\today}
+\author{
+  {\small Group 13: }
+  {\small Xiaoying Chen}{\tiny(s...)},
+  {\small Roald Baas}{\tiny(s...)},
+  {\small Anne Wanningen}{\tiny(s2219832)}
+}
+
 
 \begin{document}
 
@@ -54,6 +60,33 @@ We run our QA-system on the 50 test questions, we found answers for 41 questions
 Most of the questions our system found a correct answers were with the question format: Wie/Wat is de/het X van Y. In order to find answers for this type basic questions, property and URI are only needed. Once the property(X) and URI(Y) are found in the sentence, it can simply apply to the SPARQL-queries and search for the correct answer in dbpedia.
 
 We also find correct answer for the question that ask which sport did someone participated(question9), search for the person who open the game (question 13 and 16), when did the game started(question25), how many country were participated in the game(question29) and when did somebody born.
+
+
+% some additional data:
+%Time M1:
+%mean:   2.699058
+%sd:     1.212297
+%
+%Time M2:
+%mean:   15.93833
+%sd:     20.65463
+%
+%
+%Time M1 Correct:
+%mean:   2.293303
+%sd:     0.7760793
+%
+%Time M2 Correct:
+%mean:   6.036869
+%sd:     3.409159
+%
+%
+%Precision 1:    0.8333333
+%Precision 2:    0.2272727
+%
+%Recall 1:       0.12
+%Recall 2:       0.7954545
+
 
 \subsection{Error analysis}
 % What went wrong
