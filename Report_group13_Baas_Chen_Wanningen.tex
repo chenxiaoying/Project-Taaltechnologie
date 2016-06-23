@@ -1,0 +1,72 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[english]{babel}
+\usepackage[round,longnamesfirst]{natbib}
+
+\title{Report Language Technology}
+\author{Roald Baas \& Xiaoying Chen \& Anne Wanningen\\(group 13)}
+%\date{ }
+
+\begin{document}
+
+%The report should be approx. 5 pages and should ideally address the following topics:
+
+%    A description of dbpedia
+%    A description of the task (question answering, what kind of questions)
+%    A description of the architecture and major componets of your QA-system
+%    Additional knowledge resources used (if any)
+%    Results on the test questions
+%    Error analysis
+%    Division of work in your team (who contributed to what)
+%    Each group only submits a single report
+
+\maketitle
+
+\section{Introduction}
+% Description of the task
+% Description of dbpedia (use of dbpedia to do task), dbpedia citation?
+% Next, we describe the architecture of the system
+
+
+
+\section{Architecture}
+% Use of pairCounts + similarwords
+%TODO: alpino citation? xpath citation?
+The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URIs and properties of questions. Alpino is used to parse questions, on which in turn xpath is used to extract keywords.
+
+%TODO: SPARQL gedeelte
+
+% Major components, how everything works, xpath SPARQL etc.
+
+\subsection{Method 1}
+% First faster method
+
+
+\subsection{Method 2}
+% Second slower method
+
+
+
+\section{Results}
+% Results
+% 41 questions answered, 15 correct. Precision, recall, etc.
+We run our QA-system on the 50 test questions, we found answers for 41 questions, but only 15 answers were correct. Method 1 had found 5 correct answers and 10 correct answers for method 2. The precision for our system was 0.366, our recall was 0.3 and our f-score was 0.33.
+
+Most of the questions our system found a correct answers were with the question format: Wie/Wat is de/het X van Y. In order to find answers for this type basic questions, property and URI are only needed. Once the property(X) and URI(Y) are found in the sentence, it can simply apply to the SPARQL-queries and search for the correct answer in dbpedia.
+
+We also find correct answer for the question that ask which sport did someone participated(question9), search for the person who open the game (question 13 and 16), when did the game started(question25), how many country were participated in the game(question29) and when did somebody born.
+
+\subsection{Error analysis}
+% What went wrong
+We fails to answer a lot of questions correctly. The questions were ask in different ways and our system was not smart enough to answer all of them. There are many reasons that caused to this failure.
+
+\begin{enumerate}
+\item One single type SPARQL-query for all questions \\
+There are questions that give a property and the value of that property, which ask for the URI. Take question 34 as example, “Wiens bijnaam is Lightning Bolt?”. This is a type question that our system could not find correct answer. But actually, this can be easy to answer. After Alpino had parse the question and find the property and property value, make the corresponding SPARQL-queries will successfully get the correct answer. One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
+\end{enumerate}
+
+
+\bibliographystyle{plainnat}
+\bibliography{literature}
+
+
+\end{document}
