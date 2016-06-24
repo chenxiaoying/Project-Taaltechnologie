@@ -7,7 +7,7 @@
 \author{
   {\small Group 13: }
   {\small Xiaoying Chen}{\tiny(s2714140)},
-  {\small Roald Baas}{\tiny(s...)},
+  {\small Roald Baas}{\tiny(s1879642)},
   {\small Anne Wanningen}{\tiny(s2219832)}
 }
 
@@ -31,17 +31,53 @@
 % Description of the task
 % Description of dbpedia (use of dbpedia to do task), dbpedia citation?
 % Next, we describe the architecture of the system
-Our task for the course was to build a Dutch question-answer system with the theme of Olympics Games based on Dutch Dbpedia. DBpedia is a project which extract information from Wikipedia and is free for use. Even though DBpedia has 111 different language edition, which English edition is the largest. But since we had to built a Dutch QA-system, we will use the Dutch edition DBpedia. Using SPARQL query can easily search for relation and entities of concepts in DBpedia. When the QA-system read a question from the input, it should be able to give the correct answer. We expect our QA-system will be able to find different types questions. For example, ‚ÄúWie is de coach van Micheal Phelps?‚Äù. This is a typical Wie/wat is de/het X van Y question. Of course the system was also expected to answer list-questions(e.g. Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?) and count-questions(e.g Hoeveel landen doen mee aan de Olympische Zomerspelen 2012?). The questions will be ask in different ways that the standard format, so the system has to analyze the question first, and then search for the answer with analyzed information.
+Our task for the course was to build a Dutch question-answer system with the theme: Olympic Games. The Dutch DBpedia (http://nl.dbpedia.org) is used as a source of information in answering questions. DBpedia is a project which extracts machine readable information from Wikipedia, making it available for free as Linked Open Data. The information (which are objects, concepts, resources) on DBpedia are identified by a URI (which often follow the syntax of URL's), which can easily be accessed via an internet browser or using a query language such as SPARQL. It supports 111 different languages, of which the English version is the largest. In our Q/A system we limit ourselves to the Dutch version.
+
+
+
+% Meer over de taak; wat voor soorten vragen kunnen we verwachten?
+The system is evaluated using 50 test questions, which were unknown at the time of constructing the system. The questions were expected to be of the following types:
+
+\begin{itemize}
+\item 'Wie/wat is de/het X van Y?'-questions
+\item List-questions (Welke landen...)
+\item Count-questions (Hoeveel landen...)
+\end{itemize}
+
+The questions were also expected to have the following properties:
+
+\begin{itemize}
+\item Questions will be in Dutch
+\item Questions will not contain spelling errors
+\item Questions are about the Olympics
+\item No questions that require context
+\item No 'double' questions (Waar en in welk jaar...)
+\item No 'or' questions (Waren de Olympische Spelen in 2002 zomer of winter spelen?)
+\end{itemize}
+
+Ofcourse the questions may be phrased differently than in these types (for instance 'Door wie...' instead of 'Wie...'). This means that the system has to start by analyzing each question to extract the relevant information used to answer the question, which will be explained in more detail in the next section.
+
+
+%Dit stuk meer bij architecture? Eerste deel in ieder geval, gedeelte over de vraagtypen heb ik hierboven anders verwoord
+%Using SPARQL query can easily search for relation and entities of concepts in DBpedia. When the QA-system read a question from the input, it should be able to give the correct answer. We expect our QA-system will be able to find different types questions. For example, ìWie is de coach van Micheal Phelps?î. This is a typical Wie/wat is de/het X van Y question. Of course the system was also expected to answer list-questions(e.g. Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?) and count-questions(e.g Hoeveel landen doen mee aan de Olympische Zomerspelen 2012?). The questions will be ask in different ways that the standard format, so the system has to analyze the question first, and then search for the answer with analyzed information.
 
 
 \section{Architecture}
 % Use of pairCounts + similarwords
 %TODO: alpino citation? xpath citation?
+
+
+
 The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URIs and properties of questions. Alpino is used to parse questions, on which in turn xpath is used to extract keywords.
+
+
+%TODO:(meer uitleg over pairCounts) Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts can be used to determine URIs.
 
 %TODO: SPARQL gedeelte
 
 % Major components, how everything works, xpath SPARQL etc.
+
+% Input: tab separated, same for output
 
 \subsection{Method 1}
 % First faster method
@@ -94,10 +130,10 @@ We fails to answer a lot of questions correctly. The questions were ask in diffe
 
 \begin{enumerate}
 \item One single type SPARQL-query for all questions \\
-There are questions that give a property and the value of that property, which ask for the URI. Take question 34 as example, ‚ÄúWiens bijnaam is Lightning Bolt?‚Äù. This is a type question that our system could not find correct answer. But actually, this can be easy to answer. After Alpino had parse the question and find the property and property value, make the corresponding SPARQL-queries will successfully get the correct answer. One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
+There are questions that give a property and the value of that property, which ask for the URI. Take question 34 as example, ìWiens bijnaam is Lightning Bolt?î. This is a type question that our system could not find correct answer. But actually, this can be easy to answer. After Alpino had parse the question and find the property and property value, make the corresponding SPARQL-queries will successfully get the correct answer. One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
 
 \item Difficulty on finding correct URI by method 1 \\
-When the phrase ‚ÄúOlympische Zomerspelen‚Äù or similar phrase appear in the sentence, we will use it as URI in the SPARQL-query. But it is not always the correct URI for the query. For example, question 10 of the test question: ‚ÄúHoeveel Nederlandse sporters deden mee aan de Olympische Winterspelen van 2002?‚Äù When we perform method 1, the system get the URI as ‚ÄúOlympische Winterspelen 2002‚Äú, where it should be ‚ÄúNederland\_op\_de\_Olympische\_Winterspelen\_2002‚Äú. When a country name was mentioned in the question, most of the time the correct URI should be in this format for finding the correct answer. But our system did not check if the question contain a country name in order to generate the correct the URI. So we fails to answer the questions when it ask for how many athletes come from a country or who carries the flag for a country.
+When the phrase ìOlympische Zomerspelenî or similar phrase appear in the sentence, we will use it as URI in the SPARQL-query. But it is not always the correct URI for the query. For example, question 10 of the test question: ìHoeveel Nederlandse sporters deden mee aan de Olympische Winterspelen van 2002?î When we perform method 1, the system get the URI as ìOlympische Winterspelen 2002ì, where it should be ìNederland\_op\_de\_Olympische\_Winterspelen\_2002ì. When a country name was mentioned in the question, most of the time the correct URI should be in this format for finding the correct answer. But our system did not check if the question contain a country name in order to generate the correct the URI. So we fails to answer the questions when it ask for how many athletes come from a country or who carries the flag for a country.
 \end{enumerate}
 
 
