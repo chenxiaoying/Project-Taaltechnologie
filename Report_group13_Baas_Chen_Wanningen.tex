@@ -63,25 +63,20 @@ Ofcourse the questions may be phrased differently than in these types (for insta
 
 
 \section{Architecture}
-% Use of pairCounts + similarwords
-%TODO: alpino citation? xpath citation?
+The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URI's and properties of questions. Alpino is used to parse questions, giving XML data as output. XPath is used to extract keywords from this XML data. Finally, after having analysed the question, SPARQL is used to query DBpedia, possibly returning an answer.
 
+Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts (the Dutch version, as other languages are available) can be used to determine URI's. The file similarwords gives us the ability to generate words similar to a given word (as the name suggests).
 
+The input is a text file containing questions (including question number, separated by tabs). The system iterates over this file, analyzing and answering each question, giving the output in a text file using the same format: question number followed by the answer(s), separated by tabs.
 
-The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URIs and properties of questions. Alpino is used to parse questions, on which in turn xpath is used to extract keywords.
-
-
-%TODO:(meer uitleg over pairCounts) Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts can be used to determine URIs.
-
-%TODO: SPARQL gedeelte
-
-% Major components, how everything works, xpath SPARQL etc.
-
-% Input: tab separated, same for output
+The system uses two methods to try and find answers to questions: a fast method and a slower more thorough method.
 
 \subsection{Method 1}
-% First faster method
+The fast method starts by determining the question type ('wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'). There are slight individual differences between these questions. For example, if the question type 'hoe' also contains the word 'lang', we can add 'lengte' to the list of properties to check (meaning the system will find lengths of athletes).
 
+The method then gets the property and the URI from which to find an answer. The subject of the question is used as a property, and the object is used to find the URI (using pairCounts). For example, in a 'Wie/wat is de/het X van Y?'-question, X is the subject, and Y the object. The property and URI are then used in a SPARQL query to find the information stored in the found property of the found URI.
+
+Since this method is rather quick and dirty, it won't find many answers (but those that it does, it finds quickly and accurately as we will see in the Results section). If this method fails to produce an answer, the system tries again using the second (slower) method.
 
 \subsection{Method 2}
 % Second slower method
