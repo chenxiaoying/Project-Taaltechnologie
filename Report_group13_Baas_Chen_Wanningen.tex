@@ -27,7 +27,7 @@
 % Description of the task
 % Description of dbpedia (use of dbpedia to do task), dbpedia citation?
 % Next, we describe the architecture of the system
-Our task for the course was to build a Dutch question-answer system with the theme: Olympic Games. The Dutch DBpedia (http://nl.dbpedia.org) is used as a source of information in answering questions. DBpedia is a project which extracts machine readable information from Wikipedia, making it available for free as Linked Open Data. The information (which are objects, concepts, resources) on DBpedia are identified by a URI (which often follow the syntax of URL's), which can easily be accessed via an internet browser or using a query language such as SPARQL. It supports 111 different languages, of which the English version is the largest. In our Q/A system we limit ourselves to the Dutch version.\vspace{2mm}\\
+Our task for the course was to build a Dutch question-answer system with the theme: Olympic Games. The Dutch DBpedia is used as a source of information in answering questions. DBpedia is a project which extracts machine readable information from Wikipedia, making it available for free as Linked Open Data. The information (which are objects, concepts, resources) on DBpedia are identified by a URI (which often follow the syntax of URL's), which can easily be accessed via an internet browser or using a query language such as SPARQL. It supports 111 different languages, of which the English version is the largest. In our Q/A system we limit ourselves to the Dutch version.\vspace{2mm}\\
 % Meer over de taak; wat voor soorten vragen kunnen we verwachten?
 The system is evaluated using 50 test questions, which were unknown at the time of constructing the system. The questions were expected to be of the following types:
 \begin{tabbing}
@@ -48,11 +48,11 @@ Ofcourse the questions may be phrased differently than in these types (for insta
 
 
 %Dit stuk meer bij architecture? Eerste deel in ieder geval, gedeelte over de vraagtypen heb ik hierboven anders verwoord
-%Using SPARQL query can easily search for relation and entities of concepts in DBpedia. When the QA-system read a question from the input, it should be able to give the correct answer. We expect our QA-system will be able to find different types questions. For example, “Wie is de coach van Micheal Phelps?”. This is a typical Wie/wat is de/het X van Y question. Of course the system was also expected to answer list-questions(e.g. Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?) and count-questions(e.g Hoeveel landen doen mee aan de Olympische Zomerspelen 2012?). The questions will be ask in different ways that the standard format, so the system has to analyze the question first, and then search for the answer with analyzed information.
+%Using SPARQL query can easily search for relation and entities of concepts in DBpedia. When the QA-system read a question from the input, it should be able to give the correct answer. We expect our QA-system will be able to find different types questions. For example, ?Wie is de coach van Micheal Phelps??. This is a typical Wie/wat is de/het X van Y question. Of course the system was also expected to answer list-questions(e.g. Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?) and count-questions(e.g Hoeveel landen doen mee aan de Olympische Zomerspelen 2012?). The questions will be ask in different ways that the standard format, so the system has to analyze the question first, and then search for the answer with analyzed information.
 
 
 \section{Architecture}
-The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URI's and properties of questions. Alpino is used to parse questions, giving XML data as output. XPath is used to extract keywords from this XML data. Finally, after having analysed the question, SPARQL is used to query DBpedia, possibly returning an answer.\vspace{2mm}\\
+The system was built in Python3 using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URI's and properties of questions. Alpino is used to parse questions, giving XML data as output. XPath is used to extract keywords from this XML data. Finally, after having analysed the question, SPARQL is used to query DBpedia, possibly returning an answer.\vspace{2mm}\\
 Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts (the Dutch version, as other languages are available) can be used to determine URI's. The file similarwords gives us the ability to generate words similar to a given word (as the name suggests).\vspace{2mm}\\
 The input is a text file containing questions (including question number, separated by tabs). The system iterates over this file, analyzing and answering each question, giving the output in a text file using the same format: question number followed by the answer(s), separated by tabs.\vspace{2mm}\\
 The system uses two methods to try and find answers to questions: a fast method and a slower more thorough method.
@@ -155,7 +155,7 @@ When the phrase 'Olympische Zomerspelen' or similar phrases appeared in a questi
 \section{Division of labour}
 The division of work was equal. Every member of our group contributed to the construction and testing of the system, the presentation, and the report.
 
-
+\nocite{*}
 \bibliographystyle{plainnat}
 \bibliography{literature}
 
