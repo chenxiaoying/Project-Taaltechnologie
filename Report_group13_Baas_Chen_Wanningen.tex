@@ -31,30 +31,23 @@
 % Description of the task
 % Description of dbpedia (use of dbpedia to do task), dbpedia citation?
 % Next, we describe the architecture of the system
-Our task for the course was to build a Dutch question-answer system with the theme: Olympic Games. The Dutch DBpedia (http://nl.dbpedia.org) is used as a source of information in answering questions. DBpedia is a project which extracts machine readable information from Wikipedia, making it available for free as Linked Open Data. The information (which are objects, concepts, resources) on DBpedia are identified by a URI (which often follow the syntax of URL's), which can easily be accessed via an internet browser or using a query language such as SPARQL. It supports 111 different languages, of which the English version is the largest. In our Q/A system we limit ourselves to the Dutch version.
-
-
-
+Our task for the course was to build a Dutch question-answer system with the theme: Olympic Games. The Dutch DBpedia (http://nl.dbpedia.org) is used as a source of information in answering questions. DBpedia is a project which extracts machine readable information from Wikipedia, making it available for free as Linked Open Data. The information (which are objects, concepts, resources) on DBpedia are identified by a URI (which often follow the syntax of URL's), which can easily be accessed via an internet browser or using a query language such as SPARQL. It supports 111 different languages, of which the English version is the largest. In our Q/A system we limit ourselves to the Dutch version.\vspace{2mm}\\
 % Meer over de taak; wat voor soorten vragen kunnen we verwachten?
 The system is evaluated using 50 test questions, which were unknown at the time of constructing the system. The questions were expected to be of the following types:
-
-\begin{itemize}
-\item 'Wie/wat is de/het X van Y?'-questions
-\item List-questions (Welke landen...)
-\item Count-questions (Hoeveel landen...)
-\end{itemize}
-
+\begin{tabbing}
+\hspace{4mm}\=$\cdot$ 'Wie/wat is de/het X van Y?'-questions\\
+\> $\cdot$ List-questions (Welke landen...)\\
+\> $\cdot$ Count-questions (Hoeveel landen...)
+\end{tabbing}\vspace{2mm}
 The questions were also expected to have the following properties:
-
-\begin{itemize}
-\item Questions will be in Dutch
-\item Questions will not contain spelling errors
-\item Questions are about the Olympics
-\item No questions that require context
-\item No 'double' questions (Waar en in welk jaar...)
-\item No 'or' questions (Waren de Olympische Spelen in 2002 zomer of winter spelen?)
-\end{itemize}
-
+\begin{tabbing}
+\hspace{4mm}\= $\cdot$ Questions will be in Dutch\\
+\> $\cdot$ Questions will not contain spelling errors\\
+\> $\cdot$ Questions are about the Olympics\\
+\> $\cdot$ No questions that require context\\
+\> $\cdot$ No 'double' questions (Waar en in welk jaar...)\\
+\> $\cdot$ No 'or' questions (Waren de Olympische Spelen in 2002 zomer of winter spelen?)\\
+\end{tabbing}\vspace{2mm}
 Ofcourse the questions may be phrased differently than in these types (for instance 'Door wie...' instead of 'Wie...'). This means that the system has to start by analyzing each question to extract the relevant information used to answer the question, which will be explained in more detail in the next section.
 
 
@@ -63,19 +56,14 @@ Ofcourse the questions may be phrased differently than in these types (for insta
 
 
 \section{Architecture}
-The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URI's and properties of questions. Alpino is used to parse questions, giving XML data as output. XPath is used to extract keywords from this XML data. Finally, after having analysed the question, SPARQL is used to query DBpedia, possibly returning an answer.
-
-Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts (the Dutch version, as other languages are available) can be used to determine URI's. The file similarwords gives us the ability to generate words similar to a given word (as the name suggests).
-
-The input is a text file containing questions (including question number, separated by tabs). The system iterates over this file, analyzing and answering each question, giving the output in a text file using the same format: question number followed by the answer(s), separated by tabs.
-
+The system was built in Python3 (http://www.python.org) using the libraries lxml and SPARQLWrapper. We make use of the files \emph{pairCounts} and \emph{similarwords} provided by Spotlight \citep{isem2013daiber} to determine dbpedia URI's and properties of questions. Alpino is used to parse questions, giving XML data as output. XPath is used to extract keywords from this XML data. Finally, after having analysed the question, SPARQL is used to query DBpedia, possibly returning an answer.\vspace{2mm}\\
+Since the system is limited by only answering questions about the Olympics in Dutch and due to the machine readable nature of DBpedia, the file pairCounts (the Dutch version, as other languages are available) can be used to determine URI's. The file similarwords gives us the ability to generate words similar to a given word (as the name suggests).\vspace{2mm}\\
+The input is a text file containing questions (including question number, separated by tabs). The system iterates over this file, analyzing and answering each question, giving the output in a text file using the same format: question number followed by the answer(s), separated by tabs.\vspace{2mm}\\
 The system uses two methods to try and find answers to questions: a fast method and a slower more thorough method.
 
 \subsection{Method 1}
-The fast method starts by determining the question type ('wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'). There are slight individual differences between these questions. For example, if the question type 'hoe' also contains the word 'lang', we can add 'lengte' to the list of properties to check (meaning the system will find lengths of athletes).
-
-The method then gets the property and the URI from which to find an answer. The subject of the question is used as a property, and the object is used to find the URI (using pairCounts). For example, in a 'Wie/wat is de/het X van Y?'-question, X is the subject, and Y the object. The property and URI are then used in a SPARQL query to find the information stored in the found property of the found URI.
-
+The fast method starts by determining the question type ('wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'). There are slight individual differences between these questions. For example, if the question type 'hoe' also contains the word 'lang', we can add 'lengte' to the list of properties to check (meaning the system will find lengths of athletes).\vspace{2mm}\\
+The method then gets the property and the URI from which to find an answer. The subject of the question is used as a property, and the object is used to find the URI (using pairCounts). For example, in a 'Wie/wat is de/het X van Y?'-question, X is the subject, and Y the object. The property and URI are then used in a SPARQL query to find the information stored in the found property of the found URI.\vspace{2mm}\\
 Since this method is rather quick and dirty, it won't find many answers (but those that it does, it finds quickly and accurately as we will see in the Results section). If this method fails to produce an answer, the system tries again using the second (slower) method.
 
 \subsection{Method 2}
@@ -86,32 +74,39 @@ Since this method is rather quick and dirty, it won't find many answers (but tho
 \section{Results}
 % Results
 % 41 questions answered, 15 correct. Precision, recall, etc.
-Of the 50 test questions, the system found possible answers for 41 questions. Only 15 of those were correct. Method 1 had found 5 correct answers, and method 2 10. The precision for method 1 was 0.83 and 0.22 for method 2. The recall for method 1 and 2 were respectively 0.12 and 0.80.  If we compare the two methods, we noticed that method 1 had a higher precision, and method 2 has a better recall. Based on this data we can conclude that method 2 performed better than method 1 in finding answers, but the answers given by method 1 were generally more accurate. The precision for our overall system (where method 1 and 2 are combined) was 0.366, our recall was 0.3 and our f-score was 0.33. The use of the second method does greatly reduce precision (and thus our f-score), but since the goal was to give as many answers as possible this was not a great problem.
-
-As mentioned before, the first method is faster. The mean time to answer a question in method 1 was 2.7 seconds (with a standard deviation of 1.2 seconds), whereas that of method 2 was 15.9 seconds (with a standard deviation of 20.7 seconds). This large increase in time is due to the system not being able to find an answer immediately, which is made apparent by the fact that if an answer was correctly answered, the mean time to answer is just 6 seconds (with standard deviation 3.4 seconds). In order to increase the speed of the system, we could have implemented a cut-off point, meaning that when it takes too long to find an answer, we conclude that no answer was found. %TODO: misschien dit laatste anders verwoorden, of aan het einde wat suggesties doen voor mogelijke verbeteringen.
-
+Of the 50 test questions, the system found possible answers for 41 questions. Only 15 of those were correct. M1(The fist method) had found 5 correct answers, and M2(The second method) 10. The table below describes the relevant statistics for both methods, as well as the complete system.\vspace{3mm}\\%The precision for method 1 was 0.83 and 0.29 for method 2. The recall for method 1 and 2 were respectively 0.1 and 0.2.  If we compare the two methods, we noticed that method 1 had a higher precision, and method 2 has a better recall. Based on this data we can conclude that method 2 performed better than method 1 in finding answers, but the answers given by method 1 were generally more accurate. The precision for our overall system (where method 1 and 2 are combined) was 0.37, our recall was 0.30 and our f-score was 0.33.%The use of the second method does greatly reduce precision (and thus our f-score), but since the goal was to give as many answers as possible this was not a great problem.               (I checked this and it doesn`t add up. Better yet; the total system performs better then both individually...) 
+\begin{tabular}{|c|c|c|c|}
+\hline 
+\textbf{Overview} & Precision & Recall & F-score \\ 
+\hline 
+Method 1 & 0.83 & 0.1 & 0.18 \\ 
+\hline 
+Method 2 & 0.29 & 0.2 & 0.24 \\ 
+\hline 
+Combined & 0.37 & 0.3 & 0.33 \\ 
+\hline 
+\end{tabular}\vspace{3mm}\\
+Interestingly, the combined system performs significantly better then both methods individually. Although M1 outperforms M2 in terms of precision, M2 performs better on recall. Both methods produce answers the other method is incapable of finding, and the precision of M1 is such that it is sufficiently reliable to execute the methods in a serial fashion and blindly accept the first answer. The apparent superiority of the combined system is further confirmed by it's F-score which is, for this data, substantially higher then both systems individually.\vspace{2mm}\\
+As mentioned before, the first method is faster. The mean time to answer a question in method 1 was 2.7(sd 1.2) seconds, whereas that of method 2 was 15.9(sd 20.7) seconds. This large increase in time is due to the system not being able to find an answer immediately, which is made apparent by the fact that if an answer was correctly answered, the mean time to answer is just 6 seconds (sd 3.4). In order to increase the speed of the system, we considered a timeout mechanism, but incidentally long processing times did produce correct answers. The longest processing time producing a correct answer in the test set was 14 seconds. Ultimately, using Binominal Logistic Regression on the test results, no significant covariance (p=0.051) between the processing time of M2 and whether the answer was correct was found.%could have implemented a cut-off point, meaning that when it takes too long to find an answer, we conclude that no answer was found. %TODO: misschien dit laatste anders verwoorden, of aan het einde wat suggesties doen voor mogelijke verbeteringen.
 The questions answered correctly by the system were the following:
-
-\begin{itemize}
-\item 1: Wat is de geboorteplaats van Inge de Bruijn?
-\item 2: Wat is de geboortedatum van Leontien van Moorsel?
-\item 3: Wat is de bijnaam van Leontien van Moorsel?
-\item 7: Wat is de volledige naam van Mark Tuitert?
-\item 8: Wat is de specialisatie van Gerard van Velde?
-\item 9: Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?
-\item 13: Door wie werden de Olympische Winterspelen 2014 geopend?
-\item 16: Wie opende de Paralympische Spelen 2012?
-\item 21: Wie is de voorzitter van het NOC*NSF?
-\item 22: Wat is de website van het NOC*NSF?
-\item 25: Wanneer beginnen de Olympische Zomerspelen van 2016?
-\item 29: Hoeveel landen deden mee aan de zomerspelen van 2000?
-\item 35: Wanneer werd Churandy Martina geboren?
-\item 45: Wat is het motto van de winterspelen in Sotsji?
-\item 48: Wie is de coach van het Nederlands hockeyteam?
-\end{itemize}
-
-Most of the questions for which our system found a correct answer were with the questions with the format: 'Wie/Wat is de/het X van Y' (questions 1, 2, 3, 7, 8, 21, 22, 45, 48). In order to find answers for this type basic questions, property and URI are only needed (as mentioned before). Finding the property (X) and URI (Y) in cases like this proved to be no problem, which resulted in a high performance for these questions.
-
+\begin{tabbing}
+\hspace{4mm}\= $\cdot$ [1] Wat is de geboorteplaats van Inge de Bruijn? (M2)\\
+\> $\cdot$ [2] Wat is de geboortedatum van Leontien van Moorsel? (M1, M2)\\
+\> $\cdot$ [3] Wat is de bijnaam van Leontien van Moorsel? (M1,M2)\\
+\> $\cdot$ [7] Wat is de volledige naam van Mark Tuitert? (M2)\\
+\> $\cdot$ [8] Wat is de specialisatie van Gerard van Velde? (M1, M2)\\
+\> $\cdot$ [9] Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen? (M2)\\
+\> $\cdot$ [13] Door wie werden de Olympische Winterspelen 2014 geopend? (M2)\\
+\> $\cdot$ [16] Wie opende de Paralympische Spelen 2012? (M2)\\
+\> $\cdot$ [21] Wie is de voorzitter van het NOC*NSF? (M2)\\
+\> $\cdot$ [22] Wat is de website van het NOC*NSF? (M2)\\
+\> $\cdot$ [25] Wanneer beginnen de Olympische Zomerspelen van 2016? (M1)\\
+\> $\cdot$ [29] Hoeveel landen deden mee aan de zomerspelen van 2000? (M2)\\
+\> $\cdot$ [35] Wanneer werd Churandy Martina geboren? (M1)\\
+\> $\cdot$ [45] Wat is het motto van de winterspelen in Sotsji? (M2)\\
+\> $\cdot$ [48] Wie is de coach van het Nederlands hockeyteam? (M2)
+\end{tabbing}
+Most of the questions for which our system found a correct answer were with the questions with the format: 'Wie/Wat is de/het X van Y' (questions 1, 2, 3, 7, 8, 21, 22, 45, 48). In order to find answers for this type basic questions, property and URI are only needed (as mentioned before). Finding the property (X) and URI (Y) in cases like this proved to be no problem, which resulted in a high performance for these questions.\vspace{3mm}\\
 Other notable answers we found were that of question 9 (which sports did someone participate in), questions concerning the opener of the Olympics (13 and 16), startdates (25), the number of participating countries (29) and birthdates (35). Question 45 deserves a special mention, since the system was able to determine the URI 'Olympische\_Winterspelen\_2014' based on the object 'winterspelen in Sotsji'.
 
 % some additional data:
