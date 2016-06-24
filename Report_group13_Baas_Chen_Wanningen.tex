@@ -86,12 +86,33 @@ Since this method is rather quick and dirty, it won't find many answers (but tho
 \section{Results}
 % Results
 % 41 questions answered, 15 correct. Precision, recall, etc.
-We run our QA-system on the 50 test questions, we found answers for 41 questions, but only 15 answers were correct. Method 1 had found 5 correct answers and 10 correct answers for method 2. The precision for method 1 was 0.83 and for method 2 was 0.22. The recall for method 1 and 2 were respectively 0.12 and 0.80.  If we compare this two methods, we noticed that even method 1 has a higher precision, but method 2 has a better recall, so we can conclude that method 2 performed better than method 1 when finding the correct answers. The precision for our system was 0.366, our recall was 0.3 and our f-score was 0.33.
+Of the 50 test questions, the system found possible answers for 41 questions. Only 15 of those were correct. Method 1 had found 5 correct answers, and method 2 10. The precision for method 1 was 0.83 and 0.22 for method 2. The recall for method 1 and 2 were respectively 0.12 and 0.80.  If we compare the two methods, we noticed that method 1 had a higher precision, and method 2 has a better recall. Based on this data we can conclude that method 2 performed better than method 1 in finding answers, but the answers given by method 1 were generally more accurate. The precision for our overall system (where method 1 and 2 are combined) was 0.366, our recall was 0.3 and our f-score was 0.33. The use of the second method does greatly reduce precision (and thus our f-score), but since the goal was to give as many answers as possible this was not a great problem.
 
-Most of the questions our system found a correct answers were with the question format: Wie/Wat is de/het X van Y. In order to find answers for this type basic questions, property and URI are only needed. Once the property(X) and URI(Y) are found in the sentence, it can simply apply to the SPARQL-queries and search for the correct answer in dbpedia.
+As mentioned before, the first method is faster. The mean time to answer a question in method 1 was 2.7 seconds (with a standard deviation of 1.2 seconds), whereas that of method 2 was 15.9 seconds (with a standard deviation of 20.7 seconds). This large increase in time is due to the system not being able to find an answer immediately, which is made apparent by the fact that if an answer was correctly answered, the mean time to answer is just 6 seconds (with standard deviation 3.4 seconds). In order to increase the speed of the system, we could have implemented a cut-off point, meaning that when it takes too long to find an answer, we conclude that no answer was found. %TODO: misschien dit laatste anders verwoorden, of aan het einde wat suggesties doen voor mogelijke verbeteringen.
 
-We also find correct answer for the question that ask which sport did someone participated(question9), search for the person who open the game (question 13 and 16), when did the game started(question25), how many country were participated in the game(question29) and when did somebody born.
+The questions answered correctly by the system were the following:
 
+\begin{itemize}
+\item 1: Wat is de geboorteplaats van Inge de Bruijn?
+\item 2: Wat is de geboortedatum van Leontien van Moorsel?
+\item 3: Wat is de bijnaam van Leontien van Moorsel?
+\item 7: Wat is de volledige naam van Mark Tuitert?
+\item 8: Wat is de specialisatie van Gerard van Velde?
+\item 9: Op welke onderdelen kwam Nicolien Sauerbreij uit op de Olympische Spelen?
+\item 13: Door wie werden de Olympische Winterspelen 2014 geopend?
+\item 16: Wie opende de Paralympische Spelen 2012?
+\item 21: Wie is de voorzitter van het NOC*NSF?
+\item 22: Wat is de website van het NOC*NSF?
+\item 25: Wanneer beginnen de Olympische Zomerspelen van 2016?
+\item 29: Hoeveel landen deden mee aan de zomerspelen van 2000?
+\item 35: Wanneer werd Churandy Martina geboren?
+\item 45: Wat is het motto van de winterspelen in Sotsji?
+\item 48: Wie is de coach van het Nederlands hockeyteam?
+\end{itemize}
+
+Most of the questions for which our system found a correct answer were with the questions with the format: 'Wie/Wat is de/het X van Y' (questions 1, 2, 3, 7, 8, 21, 22, 45, 48). In order to find answers for this type basic questions, property and URI are only needed (as mentioned before). Finding the property (X) and URI (Y) in cases like this proved to be no problem, which resulted in a high performance for these questions.
+
+Other notable answers we found were that of question 9 (which sports did someone participate in), questions concerning the opener of the Olympics (13 and 16), startdates (25), the number of participating countries (29) and birthdates (35). Question 45 deserves a special mention, since the system was able to determine the URI 'Olympische\_Winterspelen\_2014' based on the object 'winterspelen in Sotsji'.
 
 % some additional data:
 %Time M1:
@@ -121,14 +142,18 @@ We also find correct answer for the question that ask which sport did someone pa
 
 \subsection{Error analysis}
 % What went wrong
-We fails to answer a lot of questions correctly. The questions were ask in different ways and our system was not smart enough to answer all of them. There are many reasons that caused to this failure.
+The system failed to answer a lot of questions correctly. Some questions were asked in a different way which meant that the system could not answer them. Another question contained a spelling error, causing the system to fail to answer it correctly. We have identified the main points which could be improved in the system as follows:% There are many reasons that caused to this failure.
 
 \begin{enumerate}
 \item One single type SPARQL-query for all questions \\
-There are questions that give a property and the value of that property, which ask for the URI. Take question 34 as example, “Wiens bijnaam is Lightning Bolt?”. This is a type question that our system could not find correct answer. But actually, this can be easy to answer. After Alpino had parse the question and find the property and property value, make the corresponding SPARQL-queries will successfully get the correct answer. One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
+There are questions that give a property and the value of that property, which ask for the URI. Take question 34 for example: 'Wiens bijnaam is Lightning Bolt?'. This is a question that our system could answer correctly, while it can actually be easy to answer. After Alpino has parsed the question and found the property and property value, we could search for the value 'Lightning Bolt' in the 'bijnaam' property in a list of Olympic athletes.
+
+In the first method, we only made a single SPARQL query to find an answer. This could have been made more robust by trying different queries instead of immediately switching to the second method. The first method could have had some expansions to more question types, and an increase in queries by adding a dictionary to try more than one property.
+
+%One mistake we had during building the system was that we did not try multiple possible queries to search for answer. In our system, we just matched our property and URI into one single query in method 1, if that did not work, we switch to method 2. While the system performed method 2, it still matched different properties and URI to a single SPARQL-query. If we designed multiple different SPARQL-queries corresponding to more question types, and let the property, property-value and URI loop through these SPARQL-queries, we could have answer more questions correct. At least if we make corresponding queries for revers question, it is possible to answer this kind questions right.
 
 \item Difficulty on finding correct URI by method 1 \\
-When the phrase “Olympische Zomerspelen” or similar phrase appear in the sentence, we will use it as URI in the SPARQL-query. But it is not always the correct URI for the query. For example, question 10 of the test question: “Hoeveel Nederlandse sporters deden mee aan de Olympische Winterspelen van 2002?” When we perform method 1, the system get the URI as “Olympische Winterspelen 2002“, where it should be “Nederland\_op\_de\_Olympische\_Winterspelen\_2002“. When a country name was mentioned in the question, most of the time the correct URI should be in this format for finding the correct answer. But our system did not check if the question contain a country name in order to generate the correct the URI. So we fails to answer the questions when it ask for how many athletes come from a country or who carries the flag for a country.
+When the phrase 'Olympische Zomerspelen' or similar phrases appeared in a question, the system uses it as URI in the SPARQL-query. This however is not always the correct URI for the query. For example, in question 10: 'Hoeveel Nederlandse sporters deden mee aan de Olympische Winterspelen van 2002?', in method 1, the system gets the URI 'Olympische\_Winterspelen\_2002', where it should be 'Nederland\_op\_de\_Olympische\_Winterspelen\_2002'. When a country name is mentioned in the question, most of the time the correct URI should be in this format in order to find the correct answer. Our system did not perform this check. This automatically means questions of this type could not be answered correctly. 
 \end{enumerate}
 
 
