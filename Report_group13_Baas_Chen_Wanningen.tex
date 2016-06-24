@@ -13,9 +13,7 @@
 
 
 \begin{document}
-
 %The report should be approx. 5 pages and should ideally address the following topics:
-
 %    A description of dbpedia
 %    A description of the task (question answering, what kind of questions)
 %    A description of the architecture and major componets of your QA-system
@@ -24,9 +22,7 @@
 %    Error analysis
 %    Division of work in your team (who contributed to what)
 %    Each group only submits a single report
-
 \maketitle
-
 \section{Introduction}
 % Description of the task
 % Description of dbpedia (use of dbpedia to do task), dbpedia citation?
@@ -62,14 +58,18 @@ The input is a text file containing questions (including question number, separa
 The system uses two methods to try and find answers to questions: a fast method and a slower more thorough method.
 
 \subsection{Method 1}
-The fast method starts by determining the question type ('wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'). There are slight individual differences between these questions. For example, if the question type 'hoe' also contains the word 'lang', we can add 'lengte' to the list of properties to check (meaning the system will find lengths of athletes).\vspace{2mm}\\
+The first method starts by determining the question type ('wat', 'wie', 'waar', 'wanneer', 'hoeveel', 'welke', 'hoe'). There are slight individual differences between these questions. For example, if the question type 'hoe' also contains the word 'lang', we can add 'lengte' to the list of properties to check (meaning the system will find lengths of athletes).\vspace{2mm}\\
 The method then gets the property and the URI from which to find an answer. The subject of the question is used as a property, and the object is used to find the URI (using pairCounts). For example, in a 'Wie/wat is de/het X van Y?'-question, X is the subject, and Y the object. The property and URI are then used in a SPARQL query to find the information stored in the found property of the found URI.\vspace{2mm}\\
-Since this method is rather quick and dirty, it won't find many answers (but those that it does, it finds quickly and accurately as we will see in the Results section). If this method fails to produce an answer, the system tries again using the second (slower) method.
+Since this method is rather quick and dirty, it won't find many answers (but those that it does, it finds quickly and accurately as we will see in the Results section). If this method fails to produce an answer, the system tries again using the second method.
 
 \subsection{Method 2}
-% Second slower method
-
-
+This method aims to match a semi-ordered list of keywords to a ordered list of URIs. As the method lacks an absolute measure to predict keyword or URI relevance in a systematic manner, the order in  which keywords and URIs are processed is paramount to it's success.\vspace{3mm}\\
+\textbf{Keyword Extraction}\vspace{1mm}\\
+A list of keywords is composed of all nouns in the question and their respective lemma's. All nouns that were originally accompanied by adjectives are also added combined with those adjectives. Next all keywords found so far are matched with URIs as described in the next section, in order to find DB-pedia specific class names for existing concepts. Any class names found in this way are also added to the list. Finally some question specific keywords are added. Co-occurrence of the words \textit{waar} and \textit{geboren} for instance, result in the keywords \textit{geboorteplaats} and \textit{geboortestad} being added to the end of the keyword list, in order to find some peculiarly phrased properties.\vspace{3mm}\\
+\textbf{URI Matching}\vspace{1mm}\\
+There are four sources of information on which URI matching is performed; the object of the question, the subject, other noun phrases and the individual nouns. These sources are utilized one after the other, until an answer is produced. Possible URIs are found using the \textit{paircounts} file. The list of matching URIs is then ordered by rating each URI using the following formula:$$75\parallel K_q \cap K_{uri} \parallel - 10\parallel K_{uri}\parallel - \parallel URL \parallel$$In which $K_q$ is the set of keywords extracted from the question, $K_{uri}$ is the set of keywords as mentioned in \textit{paircounts} for that URI, and $URL$ representing the DB-pedia address for the URI. The parameters for this function were manually tuned for optimal matching on the available training data.\vspace{3mm}\\
+\textbf{Finding the Answer}\vspace{1mm}\\
+For every ordered list of URIs the top 50 results are queried for a list of all properties on that page. If a property label contains a word from the keyword list a query is fired to get its value. If this query returns an acceptable value, this is considered the answer.
 
 \section{Results}
 % Results
